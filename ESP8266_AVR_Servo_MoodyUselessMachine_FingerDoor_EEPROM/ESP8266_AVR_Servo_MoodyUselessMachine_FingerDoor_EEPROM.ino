@@ -45,17 +45,17 @@ const int doorServoPin   = 6;
 Servo fingerServo;
 Servo doorServo;
 
-int fingerServoPowerOff = 800;
-int fingerServoFrom     = 1000;
-int fingerServoMid      = 1470;
-int fingerServoMid2     = 1550;
-int fingerServoTo       = 2130;
+int fingerServoPowerOff = 800; // power off internal switch
+int fingerServoFrom     = 1000; // starting position, close to internal switch
+int fingerServoMid      = 1750; // a bit from the switch
+int fingerServoMid2     = 1950; // close to switch
+int fingerServoTo       = 2130; // move the switch
 
-int doorServoFrom = 1400;
-int doorServoMid  = 1450;
-int doorServoMid2 = 1580;
-int doorServoMid3 = 1640;
-int doorServoTo   = 2050;
+int doorServoFrom = 1100;
+int doorServoMid  = 1200;
+int doorServoMid2 = 1350;
+int doorServoMid3 = 1450;
+int doorServoTo   = 1550;
 
 void pinModeGpio(int pinnr)
 {
