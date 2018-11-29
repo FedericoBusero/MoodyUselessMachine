@@ -106,7 +106,6 @@ void eeprom_init()
       if ((currentseq < SEQUENCE_START) || (currentseq > SEQUENCE_END))
       {
         eeprom_reset();
-        sequence_mode = SEQUENCE_MODE_DEFAULT;
         currentseq = SEQUENCE_START;
       }
       else
