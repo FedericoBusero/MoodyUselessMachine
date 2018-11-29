@@ -189,11 +189,10 @@ void sequence1()
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 500);
   delay(1000);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1000);
-  sweep(&fingerServo, fingerServoFrom, fingerServoMid, 1800);
+  sweep(&fingerServo, fingerServoDoorTo, fingerServoMid, 1800);
   sweep(&fingerServo, fingerServoMid, fingerServoTo, 500);
   delay(100);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 500);
-  sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 500);
 }
 
 void sequence2()
