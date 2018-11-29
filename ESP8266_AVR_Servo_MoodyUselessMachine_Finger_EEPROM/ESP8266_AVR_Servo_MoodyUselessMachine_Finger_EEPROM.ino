@@ -294,11 +294,9 @@ void sequence7()
   delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1);
   delay(1);
-  sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
+  sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
   delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(200);
-  sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 1);
   delay(400);
 }
 
@@ -341,11 +339,9 @@ void sequence8()
   delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1);
   delay(1);
-  sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
+  sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
   delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(200);
-  sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 1);
   delay(400);
 }
 
@@ -392,11 +388,9 @@ void sequence9()
   delay(1);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorTo, 1000);
   delay(1);
-  sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
+  sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
   delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(200);
-  sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 1);
   delay(400);
 }
 
@@ -405,9 +399,9 @@ void sequence10()
   delay(800);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 30000);
   delay(1);
-  sweep(&fingerServo, fingerServoFrom, fingerServoTo, 3000);
+  sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 3000);
   delay(1);
-  sweep(&fingerServo, fingerServoTo, fingerServoFrom, 3000);
+  sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 3000);
   delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorMid, 30000);
   delay(1);
