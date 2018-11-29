@@ -46,16 +46,16 @@ Servo fingerServo;
 Servo doorServo;
 
 int fingerServoPowerOff = 800;
-int fingerServoFrom = 1000;
-int fingerServoTo = 2130;
-int fingerServoMid = 1470;
-int fingerServoMid2 = 1550;
+int fingerServoFrom     = 1000;
+int fingerServoMid      = 1470;
+int fingerServoMid2     = 1550;
+int fingerServoTo       = 2130;
 
 int doorServoFrom = 1400;
-int doorServoTo = 2050;
-int doorServoMid = 1800;
+int doorServoMid  = 1450;
 int doorServoMid2 = 1580;
 int doorServoMid3 = 1640;
+int doorServoTo   = 2050;
 
 void pinModeGpio(int pinnr)
 {
@@ -74,16 +74,13 @@ void pinModeGpio(int pinnr)
 #define EEPROM_SIZE 4
 #define EEPROM_CONFIG_FLAG    0
 #define EEPROM_CONFIG_TEST    1
-#define EEPROM_MODE           2
-#define EEPROM_SEQUENCE       3
+#define EEPROM_SEQUENCE       2
 
-#define EEPROM_CONFIG_TEST_VALUE 0x9A
+#define EEPROM_CONFIG_TEST_VALUE 0x9B
 
-#define SEQUENCE_MODE_DEFAULT 0 // iterate
 #define SEQUENCE_START 0
 #define SEQUENCE_END   17
 
-static int sequence_mode = SEQUENCE_MODE_DEFAULT;
 static int currentseq = SEQUENCE_START;
 
 void eeprom_reset()
@@ -94,7 +91,6 @@ void eeprom_reset()
 #endif
   EEPROM.write(EEPROM_CONFIG_FLAG, 1);
   EEPROM.write(EEPROM_CONFIG_TEST, EEPROM_CONFIG_TEST_VALUE);
-  EEPROM.write(EEPROM_MODE, SEQUENCE_MODE_DEFAULT);
   EEPROM.write(EEPROM_SEQUENCE, SEQUENCE_START);
   EEPROM.commit();
 }
@@ -106,9 +102,7 @@ void eeprom_init()
   {
     if (EEPROM.read(EEPROM_CONFIG_TEST) == EEPROM_CONFIG_TEST_VALUE)
     {
-      sequence_mode = EEPROM.read(EEPROM_MODE);
       currentseq = EEPROM.read(EEPROM_SEQUENCE);
-      // TODO constrain sequence_mode
       if ((currentseq < SEQUENCE_START) || (currentseq > SEQUENCE_END))
       {
         eeprom_reset();
@@ -118,9 +112,6 @@ void eeprom_init()
       else
       {
 #ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("sequence_mode: ");
-        DEBUG_SERIAL.println(sequence_mode);
-
         DEBUG_SERIAL.print("currentseq: ");
         DEBUG_SERIAL.println(currentseq);
 #endif
