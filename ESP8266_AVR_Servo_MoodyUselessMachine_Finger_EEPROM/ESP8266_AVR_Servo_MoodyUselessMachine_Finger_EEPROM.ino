@@ -52,6 +52,7 @@ int fingerServoMid      = 1750; // a bit from the switch
 int fingerServoMid2     = 1950; // close to switch
 int fingerServoTo       = 2130; // move the switch
 
+#define SLOWDOWNMICROSEC 500 // 200 fast, 500 normal, 1000 slow
 
 void pinModeGpio(int pinnr)
 {
@@ -133,39 +134,33 @@ void eeprom_write_next_sequence()
 }
 
 
+// https://github.com/todbot/ServoEaser/blob/master/examples/ServoEaser3Callbacks/ServoEaser3Callbacks.ino
+float ServoEaser_linear (float t, float b, float c, float d) {
+  return c * t / d + b;
+}
+
+inline float ServoEaser_easeInOutCubic(float t, float b, float c, float d)
+{
+  if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
+  return c / 2 * ((t -= 2) * t * t + 2) + b;
+}
+
 void sweep(Servo *srv, int from, int to, int delayus)
 {
-  if (from < to)
+  unsigned long startMillis = millis();
+  float currPos;
+  unsigned long durMillis = ((unsigned long)(delayus + SLOWDOWNMICROSEC) * (unsigned long)(abs(to - from))) / 1000L;
+  unsigned long currentMillis = millis();
+  unsigned long endMillis = startMillis + durMillis;
+
+  while (currentMillis < endMillis)
   {
-    for (int pos = from; pos < to; pos += 1)
-    {
-      srv->writeMicroseconds(pos);
-      if (delayus > 1000)
-      {
-        delay(delayus / 1000);
-      }
-      else
-      {
-        delayMicroseconds(delayus);
-        yield();
-      }
-    }
-  }
-  else if (from > to)
-  {
-    for (int pos = from; pos >= to; pos -= 1)
-    {
-      srv->writeMicroseconds(pos);
-      if (delayus > 1000)
-      {
-        delay(delayus / 1000);
-      }
-      else
-      {
-        delayMicroseconds(delayus);
-        yield();
-      }
-    }
+    currentMillis = millis();
+    // use ServoEaser_linear for linear movement, ServoEaser_easeInOutCubic for natural movement
+    currPos = ServoEaser_easeInOutCubic( currentMillis - startMillis, (float)from, (float)(to - from), durMillis );
+
+    srv->writeMicroseconds(currPos);
+    yield();
   }
 }
 
