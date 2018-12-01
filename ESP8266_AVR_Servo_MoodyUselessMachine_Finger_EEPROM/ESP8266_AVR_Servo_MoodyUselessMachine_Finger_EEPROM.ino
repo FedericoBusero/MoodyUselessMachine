@@ -176,232 +176,244 @@ int getnextseq()
   }
 }
 
+void sweep_delay(unsigned long durMillis)
+{
+  unsigned long currentMillis = millis();
+  unsigned long endMillis = currentMillis + durMillis;
+
+  while (currentMillis < endMillis)
+  {
+    currentMillis = millis();
+    yield();
+  }
+}
+
 void sequence1()
 {
-  delay(700);
+  sweep_delay(700);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 3000);
-  delay(1000);
+  sweep_delay(1000);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 500);
-  delay(1000);
+  sweep_delay(1000);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1000);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoMid, 1800);
   sweep(&fingerServo, fingerServoMid, fingerServoTo, 500);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 500);
 }
 
 void sequence2()
 {
-  delay(800);
+  sweep_delay(800);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid2, 3000);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(120);
+  sweep_delay(120);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(120);
+  sweep_delay(120);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(120);
+  sweep_delay(120);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(120);
+  sweep_delay(120);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(120);
+  sweep_delay(120);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(120);
+  sweep_delay(120);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorFrom, 3000);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 3000);
-  delay(1000);
+  sweep_delay(1000);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorTo, 1000);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoMid, 1800);
   sweep(&fingerServo, fingerServoMid, fingerServoTo, 500);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 500);
 }
 
 void sequence3()
 {
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
-  delay(450);
+  sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(400);
+  sweep_delay(400);
 }
 
 void sequence4()
 {
-  delay(500);
+  sweep_delay(500);
   sweep(&fingerServo, fingerServoFrom, fingerServoMid2, 1);
-  delay(450);
+  sweep_delay(450);
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 30000);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(400);
+  sweep_delay(400);
 }
 
 void sequence5()
 {
-  delay(1000);
+  sweep_delay(1000);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
-  delay(450);
+  sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoMid2, 1);
-  delay(110);
+  sweep_delay(110);
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 1);
-  delay(110);
+  sweep_delay(110);
   sweep(&fingerServo, fingerServoTo, fingerServoMid2, 1);
-  delay(110);
+  sweep_delay(110);
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 1);
-  delay(110);
+  sweep_delay(110);
   sweep(&fingerServo, fingerServoTo, fingerServoMid2, 1);
-  delay(110);
+  sweep_delay(110);
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 1);
-  delay(110);
+  sweep_delay(110);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(400);
+  sweep_delay(400);
 }
 
 void sequence6()
 {
-  delay(1500);
+  sweep_delay(1500);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
-  delay(450);
+  sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 1);
-  delay(450);
+  sweep_delay(450);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 1000);
-  delay(2000);
+  sweep_delay(2000);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1000);
-  delay(2000);
+  sweep_delay(2000);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoFrom, 1);
-  delay(200);
+  sweep_delay(200);
 }
 
 void sequence7()
 {
-  delay(500);
+  sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 1);
-  delay(200);
+  sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid, 1);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid, 1);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
-  delay(200);
+  sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
-  delay(450);
+  sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(400);
+  sweep_delay(400);
 }
 
 void sequence8()
 {
-  delay(200);
+  sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 1);
-  delay(200);
+  sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid, 1);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1);
-  delay(100);
+  sweep_delay(100);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorFrom, 1);
-  delay(200);
+  sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
-  delay(450);
+  sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(400);
+  sweep_delay(400);
 }
 
 void sequence9()
 {
-  delay(1000);
+  sweep_delay(1000);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 2000);
-  delay(500);
+  sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1000);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
-  delay(50);
+  sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
-  delay(500);
+  sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid, 5000);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorTo, 1000);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
-  delay(450);
+  sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
-  delay(400);
+  sweep_delay(400);
 }
 
 void sequence10()
 {
-  delay(800);
+  sweep_delay(800);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 30000);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 3000);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 3000);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorMid, 30000);
-  delay(1);
+  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
-  delay(300);
+  sweep_delay(300);
 }
 
 void playsequence()
