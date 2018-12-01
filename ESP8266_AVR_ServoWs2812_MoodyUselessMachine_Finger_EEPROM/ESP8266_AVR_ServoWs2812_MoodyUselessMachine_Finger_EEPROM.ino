@@ -681,8 +681,8 @@ void setup() {
 
   FastLED.addLeds<NEOPIXEL, WS2812B_PIN>(leds, NUMLEDPIXELS);
 
-  currentcolor = CRGB(25, 0, 0);
-  currentmode = MODE_LED_KITT;
+  currentcolor = CRGB(0, 0, 0);
+  currentmode = MODE_LED_OFF;
   currentblinktime = LEDSTRIP_DELAY_MAX;
 }
 
