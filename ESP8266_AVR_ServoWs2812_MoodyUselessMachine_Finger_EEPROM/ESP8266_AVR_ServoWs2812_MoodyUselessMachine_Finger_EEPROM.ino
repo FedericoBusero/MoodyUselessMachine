@@ -82,17 +82,6 @@ enum
   MODE_LED_KITT2,
 };
 
-void pinModeGpio(int pinnr)
-{
-  // ESP-01 / ESP8266 pins RX/TX as GPIO
-#ifdef ESP8266
-  if ((pinnr == 1) || (pinnr == 3)) // GPIO1, GPIO3 : RX & TX ESP-01
-  {
-    pinMode (pinnr, FUNCTION_3);
-  }
-#endif
-}
-
 // EEPROM defines
 // TODO: met struct werken en put & get & sizeof
 
@@ -107,6 +96,29 @@ void pinModeGpio(int pinnr)
 #define SEQUENCE_END   17
 
 static int currentseq = SEQUENCE_START;
+
+int getnextseq()
+{
+  if (currentseq < SEQUENCE_END)
+  {
+    return (currentseq + 1);
+  }
+  else
+  {
+    return SEQUENCE_START;
+  }
+}
+
+void pinModeGpio(int pinnr)
+{
+  // ESP-01 / ESP8266 pins RX/TX as GPIO
+#ifdef ESP8266
+  if ((pinnr == 1) || (pinnr == 3)) // GPIO1, GPIO3 : RX & TX ESP-01
+  {
+    pinMode (pinnr, FUNCTION_3);
+  }
+#endif
+}
 
 void eeprom_reset()
 {
@@ -196,18 +208,6 @@ void sweep(Servo *srv, int from, int to, int delayus)
     srv->writeMicroseconds(currPos);
     updateledstrip(false, false);
     yield();
-  }
-}
-
-int getnextseq()
-{
-  if (currentseq < SEQUENCE_END)
-  {
-    return (currentseq + 1);
-  }
-  else
-  {
-    return SEQUENCE_START;
   }
 }
 
