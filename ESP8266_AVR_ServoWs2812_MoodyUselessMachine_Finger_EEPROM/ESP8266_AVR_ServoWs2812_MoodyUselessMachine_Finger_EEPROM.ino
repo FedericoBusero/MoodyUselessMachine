@@ -59,8 +59,6 @@ int fingerServoTo       = 2130; // move the switch
 
 // WS2812 ledstrip
 
-
-
 // How many leds in your strip?
 #define NUMLEDPIXELS      8
 
