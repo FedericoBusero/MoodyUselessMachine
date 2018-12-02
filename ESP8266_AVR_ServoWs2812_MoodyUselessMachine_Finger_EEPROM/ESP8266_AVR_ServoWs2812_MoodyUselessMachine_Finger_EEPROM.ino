@@ -29,8 +29,8 @@ const int fingerServoPin = 0;  // GPIO0
 #ifdef ESP8266 // NodeMCU
 const int switchPin      = D5; // GPIO14
 const int fingerServoPin = D6; // GPIO12
-#define LED_PIN LED_BUILTIN
-#define WS2812B_PIN        D3 // GPIO0
+#define LED_PIN LED_BUILTIN    // D0, GPIO16
+#define WS2812B_PIN        D3  // GPIO0
 
 #else // AVR
 const int switchPin      = 2;
