@@ -4,6 +4,8 @@
 
 #include <Servo.h>
 #include <EEPROM.h>
+
+#define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
 
 /*
@@ -28,7 +30,7 @@ const int fingerServoPin = 0;  // GPIO0
 const int switchPin      = D5; // GPIO14
 const int fingerServoPin = D6; // GPIO12
 #define LED_PIN LED_BUILTIN
-#define WS2812B_PIN           D3
+#define WS2812B_PIN        D3
 
 #else // AVR
 const int switchPin      = 2;
