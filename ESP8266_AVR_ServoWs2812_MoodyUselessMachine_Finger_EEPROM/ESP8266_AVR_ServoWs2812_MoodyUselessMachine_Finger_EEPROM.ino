@@ -21,6 +21,7 @@
 // TODO: test
 const int switchPin      = 3;  // GPIO3, RX port
 const int fingerServoPin = 0;  // GPIO0
+#define WS2812B_PIN        1 // GPIO1, TX port
 
 #else
 #ifdef ESP8266 // NodeMCU
@@ -29,10 +30,10 @@ const int fingerServoPin = D6; // GPIO12
 #define LED_PIN LED_BUILTIN
 
 #else // AVR
-// TODO: test
 const int switchPin      = 2;
-const int fingerServoPin = 5;
+const int fingerServoPin = 6;
 #define LED_PIN 13
+#define WS2812B_PIN        5
 
 #endif
 
@@ -115,12 +116,16 @@ void eeprom_reset()
   EEPROM.write(EEPROM_CONFIG_FLAG, 1);
   EEPROM.write(EEPROM_CONFIG_TEST, EEPROM_CONFIG_TEST_VALUE);
   EEPROM.write(EEPROM_SEQUENCE, SEQUENCE_START);
+#ifdef ESP8266
   EEPROM.commit();
+#endif
 }
 
 void eeprom_init()
 {
+#ifdef ESP8266
   EEPROM.begin(EEPROM_SIZE);
+#endif
   if (EEPROM.read(EEPROM_CONFIG_FLAG) == 1)
   {
     if (EEPROM.read(EEPROM_CONFIG_TEST) == EEPROM_CONFIG_TEST_VALUE)
@@ -156,7 +161,9 @@ void eeprom_write_next_sequence()
   DEBUG_SERIAL.println("eeprom_write_next_sequence");
 #endif
   EEPROM.write(EEPROM_SEQUENCE, getnextseq());
+#ifdef ESP8266
   EEPROM.commit();
+#endif
 }
 
 
@@ -678,7 +685,8 @@ void setup() {
   pinModeGpio(fingerServoPin);
   fingerServo.writeMicroseconds(fingerServoFrom);
   fingerServo.attach(fingerServoPin);
-
+  
+  pinModeGpio(WS2812B_PIN);
   FastLED.addLeds<NEOPIXEL, WS2812B_PIN>(leds, NUMLEDPIXELS);
 
   currentcolor = CRGB(0, 0, 0);
