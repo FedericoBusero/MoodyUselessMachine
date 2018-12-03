@@ -27,10 +27,10 @@ const int ledstripPin    = 1;  // GPIO1, TX port
 
 #else
 #ifdef ESP8266 // NodeMCU
-const int switchPin      = D5; // GPIO14
-const int fingerServoPin = D6; // GPIO12
+const int switchPin      = 14; // GPIO14 (D5 on NodeMCU)
+const int fingerServoPin = 12; // GPIO12 (D6 on NodeMCU)
 const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
-#define LED_PIN LED_BUILTIN    // D0, GPIO16
+#define LED_PIN LED_BUILTIN    // GPIO16, D0 on NodeMCU
 
 #else // AVR
 const int switchPin      = 2;
