@@ -1,7 +1,3 @@
-// The sequences are based on the "Moody Useless Machine", Lamja Electronics
-// http://www.lamja.com/?p=451
-// http://www.lamja.com/blogfiles/UselessMachine.pde
-
 #include <Servo.h>
 #include <EEPROM.h>
 
@@ -398,6 +394,10 @@ void sweep_delay(unsigned long durMillis)
     yield();
   }
 }
+
+// The sequences are based on the "Moody Useless Machine", Lamja Electronics
+// http://www.lamja.com/?p=451
+// http://www.lamja.com/blogfiles/UselessMachine.pde
 
 void sequence1()
 {
