@@ -23,20 +23,20 @@
 // TODO: test
 const int switchPin      = 3;  // GPIO3, RX port
 const int fingerServoPin = 0;  // GPIO0
-#define WS2812B_PIN        1 // GPIO1, TX port
+const int ledstripPin    = 1;  // GPIO1, TX port
 
 #else
 #ifdef ESP8266 // NodeMCU
 const int switchPin      = D5; // GPIO14
 const int fingerServoPin = D6; // GPIO12
+const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
 #define LED_PIN LED_BUILTIN    // D0, GPIO16
-#define WS2812B_PIN        D3  // GPIO0
 
 #else // AVR
 const int switchPin      = 2;
 const int fingerServoPin = 6;
+const int ledstripPin    = 5;
 #define LED_PIN 13
-#define WS2812B_PIN        5
 
 #endif
 
@@ -190,6 +190,165 @@ inline float ServoEaser_easeInOutCubic(float t, float b, float c, float d)
   if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
   return c / 2 * ((t -= 2) * t * t + 2) + b;
 }
+
+void loop_led_on(bool updateSelect, bool updateRGB)
+{
+  if (updateSelect || updateRGB)
+  {
+    for (int i = 0; i < NUMLEDPIXELS; i++) {
+      leds[i] = currentcolor;
+    }
+    FastLED.show();
+  }
+}
+
+void loop_led_blink(bool updateSelect)
+{
+  long blinktime = currentblinktime;
+  static long lasttoggletime = 0;
+  static int toggle = 0;
+  long currenttime = millis();
+
+  if (updateSelect || currenttime - lasttoggletime > blinktime)
+  {
+    lasttoggletime = currenttime;
+
+    toggle = !toggle;
+    if (toggle)
+    {
+      for (int i = 0; i < NUMLEDPIXELS; i++)
+      {
+        leds[i] = currentcolor;
+      }
+    }
+    else
+    {
+      for (int i = 0; i < NUMLEDPIXELS; i++)
+      {
+        leds[i] = CRGB::Black;
+      }
+    }
+    FastLED.show();
+  }
+}
+
+
+void loop_led_KITT(bool updateSelect)
+{
+  long blinktime = currentblinktime;
+  static long lastupdatetime = 0;
+  static int toggle = 0;
+  long currenttime = millis();
+  static int currentpos = 0;
+  static int dir_kitt = 0;
+
+  if (updateSelect || (currenttime - lastupdatetime > blinktime / NUMLEDPIXELS))
+  {
+    lastupdatetime = currenttime;
+
+    if (dir_kitt)
+    {
+      ++currentpos;
+    }
+    else
+    {
+      --currentpos;
+    }
+    if (currentpos >= NUMLEDPIXELS)
+    {
+      currentpos = NUMLEDPIXELS - 2;
+      dir_kitt = 0;
+    }
+    if (currentpos < 0)
+    {
+      currentpos = 1;
+      dir_kitt = 1;
+    }
+    leds[currentpos] = currentcolor;
+    FastLED.show();
+    leds[currentpos] = CRGB::Black;
+  }
+}
+
+
+void loop_led_KITT2(bool updateSelect)
+{
+  long blinktime = currentblinktime;
+  static long lastupdatetime = 0;
+  static int toggle = 0;
+  long currenttime = millis();
+  static int currentpos = 0;
+  static int dir_kitt = 0;
+
+  if (updateSelect || (currenttime - lastupdatetime > blinktime / NUMLEDPIXELS))
+  {
+    lastupdatetime = currenttime;
+
+    if (dir_kitt)
+    {
+      ++currentpos;
+    }
+    else
+    {
+      --currentpos;
+    }
+    if (currentpos >= (NUMLEDPIXELS + 1) / 2)
+    {
+      currentpos = (NUMLEDPIXELS + 1) / 2 - 2;
+      dir_kitt = 0;
+    }
+    if (currentpos < 0)
+    {
+      currentpos = 1;
+      dir_kitt = 1;
+    }
+    leds[currentpos] = currentcolor;
+    leds[NUMLEDPIXELS - currentpos - 1] = currentcolor;
+    FastLED.show();
+    leds[currentpos] = CRGB::Black;
+    leds[NUMLEDPIXELS - currentpos - 1] = CRGB::Black;
+  }
+}
+
+
+void loop_led_off(bool updateSelect)
+{
+
+  if (updateSelect)
+  {
+    for (int i = 0; i < NUMLEDPIXELS; i++) {
+      leds[i] = CRGB::Black;
+    }
+    FastLED.show();
+  }
+}
+
+void updateledstrip(bool updateSelect, bool updateRGB)
+{
+  switch (currentmode)
+  {
+    case MODE_LED_KITT:
+      loop_led_KITT(updateSelect);
+      break;
+
+    case MODE_LED_ON:
+      loop_led_on(updateSelect, updateRGB);
+      break;
+
+    case MODE_LED_BLINK:
+      loop_led_blink(updateSelect);
+      break;
+
+    case MODE_LED_OFF:
+      loop_led_off(updateSelect);
+      break;
+
+    case MODE_LED_KITT2:
+      loop_led_KITT2(updateSelect);
+      break;
+  }
+}
+
 
 void sweep(Servo *srv, int from, int to, int delayus)
 {
@@ -508,163 +667,6 @@ void playsequence()
 }
 
 
-void loop_led_on(bool updateSelect, bool updateRGB)
-{
-  if (updateSelect || updateRGB)
-  {
-    for (int i = 0; i < NUMLEDPIXELS; i++) {
-      leds[i] = currentcolor;
-    }
-    FastLED.show();
-  }
-}
-
-void loop_led_blink(bool updateSelect)
-{
-  long blinktime = currentblinktime;
-  static long lasttoggletime = 0;
-  static int toggle = 0;
-  long currenttime = millis();
-
-  if (updateSelect || currenttime - lasttoggletime > blinktime)
-  {
-    lasttoggletime = currenttime;
-
-    toggle = !toggle;
-    if (toggle)
-    {
-      for (int i = 0; i < NUMLEDPIXELS; i++)
-      {
-        leds[i] = currentcolor;
-      }
-    }
-    else
-    {
-      for (int i = 0; i < NUMLEDPIXELS; i++)
-      {
-        leds[i] = CRGB::Black;
-      }
-    }
-    FastLED.show();
-  }
-}
-
-
-void loop_led_KITT(bool updateSelect)
-{
-  long blinktime = currentblinktime;
-  static long lastupdatetime = 0;
-  static int toggle = 0;
-  long currenttime = millis();
-  static int currentpos = 0;
-  static int dir_kitt = 0;
-
-  if (updateSelect || (currenttime - lastupdatetime > blinktime / NUMLEDPIXELS))
-  {
-    lastupdatetime = currenttime;
-
-    if (dir_kitt)
-    {
-      ++currentpos;
-    }
-    else
-    {
-      --currentpos;
-    }
-    if (currentpos >= NUMLEDPIXELS)
-    {
-      currentpos = NUMLEDPIXELS - 2;
-      dir_kitt = 0;
-    }
-    if (currentpos < 0)
-    {
-      currentpos = 1;
-      dir_kitt = 1;
-    }
-    leds[currentpos] = currentcolor;
-    FastLED.show();
-    leds[currentpos] = CRGB::Black;
-  }
-}
-
-
-void loop_led_KITT2(bool updateSelect)
-{
-  long blinktime = currentblinktime;
-  static long lastupdatetime = 0;
-  static int toggle = 0;
-  long currenttime = millis();
-  static int currentpos = 0;
-  static int dir_kitt = 0;
-
-  if (updateSelect || (currenttime - lastupdatetime > blinktime / NUMLEDPIXELS))
-  {
-    lastupdatetime = currenttime;
-
-    if (dir_kitt)
-    {
-      ++currentpos;
-    }
-    else
-    {
-      --currentpos;
-    }
-    if (currentpos >= (NUMLEDPIXELS + 1) / 2)
-    {
-      currentpos = (NUMLEDPIXELS + 1) / 2 - 2;
-      dir_kitt = 0;
-    }
-    if (currentpos < 0)
-    {
-      currentpos = 1;
-      dir_kitt = 1;
-    }
-    leds[currentpos] = currentcolor;
-    leds[NUMLEDPIXELS - currentpos - 1] = currentcolor;
-    FastLED.show();
-    leds[currentpos] = CRGB::Black;
-    leds[NUMLEDPIXELS - currentpos - 1] = CRGB::Black;
-  }
-}
-
-
-void loop_led_off(bool updateSelect)
-{
-
-  if (updateSelect)
-  {
-    for (int i = 0; i < NUMLEDPIXELS; i++) {
-      leds[i] = CRGB::Black;
-    }
-    FastLED.show();
-  }
-}
-
-void updateledstrip(bool updateSelect, bool updateRGB)
-{
-  switch (currentmode)
-  {
-    case MODE_LED_KITT:
-      loop_led_KITT(updateSelect);
-      break;
-
-    case MODE_LED_ON:
-      loop_led_on(updateSelect, updateRGB);
-      break;
-
-    case MODE_LED_BLINK:
-      loop_led_blink(updateSelect);
-      break;
-
-    case MODE_LED_OFF:
-      loop_led_off(updateSelect);
-      break;
-
-    case MODE_LED_KITT2:
-      loop_led_KITT2(updateSelect);
-      break;
-  }
-}
 
 void setup() {
 #ifdef DEBUG_SERIAL
@@ -687,8 +689,8 @@ void setup() {
   fingerServo.writeMicroseconds(fingerServoFrom);
   fingerServo.attach(fingerServoPin);
   
-  pinModeGpio(WS2812B_PIN);
-  FastLED.addLeds<NEOPIXEL, WS2812B_PIN>(leds, NUMLEDPIXELS);
+  pinModeGpio(ledstripPin);
+  FastLED.addLeds<NEOPIXEL, ledstripPin>(leds, NUMLEDPIXELS);
 
   currentcolor = CRGB(0, 0, 0);
   currentmode = MODE_LED_OFF;
