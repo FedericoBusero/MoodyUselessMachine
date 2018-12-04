@@ -1,7 +1,9 @@
 #include <Servo.h>
 #include <EEPROM.h>
 
+#ifdef ESP8266
 #define FASTLED_ESP8266_RAW_PIN_ORDER
+#endif
 #include <FastLED.h>
 
 /*
@@ -17,12 +19,14 @@
 
 #ifdef HWMODE_ESP01 // ESP-01
 // TODO: test
+#include <ESP8266WiFi.h>
 const int switchPin      = 3;  // GPIO3, RX port
 const int fingerServoPin = 0;  // GPIO0
 const int ledstripPin    = 1;  // GPIO1, TX port
 
 #else
 #ifdef ESP8266 // NodeMCU
+#include <ESP8266WiFi.h>
 const int switchPin      = 14; // GPIO14 (D5 on NodeMCU)
 const int fingerServoPin = 12; // GPIO12 (D6 on NodeMCU)
 const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
@@ -666,13 +670,15 @@ void playsequence()
 #endif
 }
 
-
-
 void setup() {
 #ifdef DEBUG_SERIAL
   DEBUG_SERIAL.begin(115200);
   DEBUG_SERIAL.println("Setup Moody useless machine");
   DEBUG_SERIAL.flush();
+#endif
+  
+#ifdef ESP8266
+  WiFi.mode(WIFI_OFF);
 #endif
 
   eeprom_init();
