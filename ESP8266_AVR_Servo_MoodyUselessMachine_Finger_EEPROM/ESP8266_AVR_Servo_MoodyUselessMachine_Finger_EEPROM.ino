@@ -18,11 +18,13 @@
 
 #ifdef HWMODE_ESP01 // ESP-01
 // TODO: test
+#include <ESP8266WiFi.h>
 const int switchPin      = 3;  // GPIO3, RX port
 const int fingerServoPin = 0;  // GPIO0
 
 #else
 #ifdef ESP8266 // NodeMCU
+#include <ESP8266WiFi.h>
 const int switchPin      = D5; // GPIO14
 const int fingerServoPin = D6; // GPIO12
 #define LED_PIN LED_BUILTIN
@@ -461,6 +463,10 @@ void setup() {
   DEBUG_SERIAL.flush();
 #endif
 
+#ifdef ESP8266
+  WiFi.mode(WIFI_OFF);
+#endif
+  
   eeprom_init();
 
   pinModeGpio(switchPin);
