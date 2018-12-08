@@ -53,7 +53,7 @@ int fingerServoMid      = 1750; // a bit from the switch
 int fingerServoMid2     = 1950; // close to switch
 int fingerServoTo       = 2130; // move the switch
 
-#define SLOWDOWNMICROSEC 500 // 200 fast, 500 normal, 1000 slow
+#define SLOWDOWNMICROSEC 200 // 200 fast, 500 normal, 1000 slow
 
 void pinModeGpio(int pinnr)
 {
