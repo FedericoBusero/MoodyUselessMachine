@@ -390,6 +390,7 @@ void sweep_delay(unsigned long durMillis)
   unsigned long currentMillis = millis();
   unsigned long endMillis = currentMillis + durMillis;
 
+  FastLED.delay(2); // we have some free time, this will update the LED's
   while (currentMillis < endMillis)
   {
     currentMillis = millis();
