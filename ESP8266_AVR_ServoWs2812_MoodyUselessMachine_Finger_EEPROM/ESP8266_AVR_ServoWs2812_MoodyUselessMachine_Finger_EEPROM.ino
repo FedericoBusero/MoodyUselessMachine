@@ -69,6 +69,7 @@ CRGB leds[NUMLEDPIXELS];
 CRGB currentcolor;
 int currentmode;
 
+#define RGB_BRIGHTNESS 20
 #define LEDSTRIP_DELAY_MAX 1000
 #define LEDSTRIP_DELAY_MIN 200
 long currentblinktime;
@@ -421,7 +422,7 @@ void sequence1()
 void sequence2()
 {
   sweep_delay(800);
-  ledstrip_setmode_delay(MODE_LED_BLINK, 25, 25, 25, LEDSTRIP_DELAY_MIN );
+  ledstrip_setmode_delay(MODE_LED_BLINK, RGB_BRIGHTNESS, RGB_BRIGHTNESS, RGB_BRIGHTNESS, LEDSTRIP_DELAY_MIN );
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid2, 3000);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(120);
@@ -448,7 +449,7 @@ void sequence2()
 
 void sequence3()
 {
-  ledstrip_setmode_delay(MODE_LED_KITT, 0, 25, 0, LEDSTRIP_DELAY_MAX );
+  ledstrip_setmode_delay(MODE_LED_KITT, 0, RGB_BRIGHTNESS, 0, LEDSTRIP_DELAY_MAX );
   sweep_delay(50);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
   sweep_delay(450);
@@ -459,7 +460,7 @@ void sequence3()
 
 void sequence4()
 {
-  ledstrip_setmode(MODE_LED_ON, 25, 0, 25 );
+  ledstrip_setmode(MODE_LED_ON, RGB_BRIGHTNESS, 0, RGB_BRIGHTNESS );
   sweep_delay(500);
   sweep(&fingerServo, fingerServoFrom, fingerServoMid2, 1);
   sweep_delay(450);
@@ -700,8 +701,11 @@ void setup() {
   
   pinModeGpio(ledstripPin);
   FastLED.addLeds<NEOPIXEL, ledstripPin>(leds, NUMLEDPIXELS);
+  for (int i = 0; i < NUMLEDPIXELS; i++) {
+    leds[i] = CRGB::Black;
+  }
 
-  currentcolor = CRGB(0, 0, 0);
+  currentcolor = CRGB::Black;
   currentmode = MODE_LED_OFF;
   currentblinktime = LEDSTRIP_DELAY_MAX;
 }
