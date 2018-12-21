@@ -196,38 +196,29 @@ void loop_led_on(bool updateSelect, bool updateRGB)
 {
   if (updateSelect || updateRGB)
   {
-    for (int i = 0; i < NUMLEDPIXELS; i++) {
-      leds[i] = currentcolor;
-    }
+    fill_solid (leds, NUMLEDPIXELS, currentcolor);
     FastLED.show();
   }
 }
 
 void loop_led_blink(bool updateSelect)
 {
-  long blinktime = currentblinktime;
   static long lasttoggletime = 0;
   static int toggle = 0;
   long currenttime = millis();
 
-  if (updateSelect || currenttime - lasttoggletime > blinktime)
+  if (updateSelect || currenttime - lasttoggletime > currentblinktime)
   {
     lasttoggletime = currenttime;
 
     toggle = !toggle;
     if (toggle)
     {
-      for (int i = 0; i < NUMLEDPIXELS; i++)
-      {
-        leds[i] = currentcolor;
-      }
+      fill_solid (leds, NUMLEDPIXELS, currentcolor);
     }
     else
     {
-      for (int i = 0; i < NUMLEDPIXELS; i++)
-      {
-        leds[i] = CRGB::Black;
-      }
+      fill_solid (leds, NUMLEDPIXELS, CRGB::Black);
     }
     FastLED.show();
   }
@@ -295,10 +286,7 @@ void loop_led_rainbow(bool updateSelect)
 
   long passedtime = (currenttime - starttime) % currentblinktime;
   int wheelpos = map(passedtime, 0, currentblinktime, 0, 255);
-  CRGB c = wheel(wheelpos);
-  for (int i = 0; i < NUMLEDPIXELS; i++) {
-    leds[i] = c;
-  }
+  fill_solid (leds, NUMLEDPIXELS, wheel(wheelpos));
   FastLED.show();
 }
 
