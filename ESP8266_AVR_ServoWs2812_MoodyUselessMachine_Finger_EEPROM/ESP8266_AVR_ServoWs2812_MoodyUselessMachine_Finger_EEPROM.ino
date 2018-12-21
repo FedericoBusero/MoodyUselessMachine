@@ -69,9 +69,10 @@ CRGB leds[NUMLEDPIXELS];
 CRGB currentcolor;
 int currentmode;
 
-#define RGB_BRIGHTNESS 20
+#define RGB_BRIGHTNESS 255
 #define LEDSTRIP_DELAY_MAX 1000
 #define LEDSTRIP_DELAY_MIN 200
+#define LEDSTRIP_MAX_BRIGHTNESS 20
 long currentblinktime;
 
 enum
@@ -701,6 +702,7 @@ void setup() {
   
   pinModeGpio(ledstripPin);
   FastLED.addLeds<NEOPIXEL, ledstripPin>(leds, NUMLEDPIXELS);
+  FastLED.setBrightness(LEDSTRIP_MAX_BRIGHTNESS);
   for (int i = 0; i < NUMLEDPIXELS; i++) {
     leds[i] = CRGB::Black;
   }
