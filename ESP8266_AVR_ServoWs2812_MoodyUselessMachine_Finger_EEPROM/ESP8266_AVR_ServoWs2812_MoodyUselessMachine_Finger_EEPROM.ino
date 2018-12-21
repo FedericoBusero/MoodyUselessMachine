@@ -80,7 +80,7 @@ enum
   MODE_LED_ON,
   MODE_LED_BLINK,
   MODE_LED_OFF,
-  MODE_LED_KITT2,
+  MODE_LED_RAINBOW,
 };
 
 // EEPROM defines
@@ -263,45 +263,44 @@ void loop_led_KITT(bool updateSelect)
   FastLED.show();
 }
 
-void loop_led_KITT2(bool updateSelect)
-{
-  long blinktime = currentblinktime;
-  static long lastupdatetime = 0;
-  static int toggle = 0;
-  long currenttime = millis();
-  static int currentpos = 0;
-  static int dir_kitt = 0;
-
-  if (updateSelect || (currenttime - lastupdatetime > blinktime / NUMLEDPIXELS))
-  {
-    lastupdatetime = currenttime;
-
-    if (dir_kitt)
-    {
-      ++currentpos;
-    }
-    else
-    {
-      --currentpos;
-    }
-    if (currentpos >= (NUMLEDPIXELS + 1) / 2)
-    {
-      currentpos = (NUMLEDPIXELS + 1) / 2 - 2;
-      dir_kitt = 0;
-    }
-    if (currentpos < 0)
-    {
-      currentpos = 1;
-      dir_kitt = 1;
-    }
-    leds[currentpos] = currentcolor;
-    leds[NUMLEDPIXELS - currentpos - 1] = currentcolor;
-    FastLED.show();
-    leds[currentpos] = CRGB::Black;
-    leds[NUMLEDPIXELS - currentpos - 1] = CRGB::Black;
+CRGB wheel(int WheelPos ) {
+  CRGB color;
+  if (85 > WheelPos) {
+    color.r = 0;
+    color.g = WheelPos * 3;
+    color.b = (255 - WheelPos * 3);;
   }
+  else if (170 > WheelPos) {
+    color.r = WheelPos * 3;
+    color.g = (255 - WheelPos * 3);
+    color.b = 0;
+  }
+  else {
+    color.r = (255 - WheelPos * 3);
+    color.g = 0;
+    color.b = WheelPos * 3;
+  }
+  return color;
 }
 
+void loop_led_rainbow(bool updateSelect)
+{
+  static long starttime = 0;
+  long currenttime = millis();
+
+  if (updateSelect)
+  {
+    starttime = currenttime;
+  }
+
+  long passedtime = (currenttime - starttime) % currentblinktime;
+  int wheelpos = map(passedtime, 0, currentblinktime, 0, 255);
+  CRGB c = wheel(wheelpos);
+  for (int i = 0; i < NUMLEDPIXELS; i++) {
+    leds[i] = c;
+  }
+  FastLED.show();
+}
 
 void loop_led_off(bool updateSelect)
 {
@@ -335,8 +334,8 @@ void updateledstrip(bool updateSelect, bool updateRGB)
       loop_led_off(updateSelect);
       break;
 
-    case MODE_LED_KITT2:
-      loop_led_KITT2(updateSelect);
+    case MODE_LED_RAINBOW:
+      loop_led_rainbow(updateSelect);
       break;
   }
 }
