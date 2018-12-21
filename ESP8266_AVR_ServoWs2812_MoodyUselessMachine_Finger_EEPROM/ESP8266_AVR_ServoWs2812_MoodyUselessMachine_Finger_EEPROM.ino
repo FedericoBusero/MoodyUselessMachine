@@ -62,7 +62,7 @@ int fingerServoTo       = 2130; // move the switch
 // WS2812 ledstrip
 
 // How many leds in your strip?
-#define NUMLEDPIXELS      8
+#define NUMLEDPIXELS      2
 
 // Define the array of leds
 CRGB leds[NUMLEDPIXELS];
@@ -237,40 +237,32 @@ void loop_led_blink(bool updateSelect)
 void loop_led_KITT(bool updateSelect)
 {
   long blinktime = currentblinktime;
-  static long lastupdatetime = 0;
-  static int toggle = 0;
+  static long starttime = 0;
   long currenttime = millis();
-  static int currentpos = 0;
-  static int dir_kitt = 0;
 
-  if (updateSelect || (currenttime - lastupdatetime > blinktime / NUMLEDPIXELS))
+  if (updateSelect)
   {
-    lastupdatetime = currenttime;
-
-    if (dir_kitt)
-    {
-      ++currentpos;
-    }
-    else
-    {
-      --currentpos;
-    }
-    if (currentpos >= NUMLEDPIXELS)
-    {
-      currentpos = NUMLEDPIXELS - 2;
-      dir_kitt = 0;
-    }
-    if (currentpos < 0)
-    {
-      currentpos = 1;
-      dir_kitt = 1;
-    }
-    leds[currentpos] = currentcolor;
-    FastLED.show();
-    leds[currentpos] = CRGB::Black;
+    starttime = currenttime;
   }
-}
 
+  long passedtime = (currenttime - starttime) % currentblinktime;
+  float p = ((float)passedtime * (float)(2 * (NUMLEDPIXELS - 1)) / (float)currentblinktime) - (NUMLEDPIXELS - 1);
+  p = (NUMLEDPIXELS - 1) - fabs(p);
+
+  FastLED.clear();
+  
+  int b = (int)(255.0 * (p - floor(p)));
+  int i = (int)floor(p);
+  leds[i] = currentcolor;
+  leds[i].fadeLightBy( b );
+  
+  b = (int)(255.0 * (1.0 - (p - floor(p)) ));
+  i = (int)ceil(p);
+  leds[i] = currentcolor;
+  leds[i].fadeLightBy( b );
+  
+  FastLED.show();
+}
 
 void loop_led_KITT2(bool updateSelect)
 {
