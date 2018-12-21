@@ -372,16 +372,16 @@ void sweep(Servo *srv, int from, int to, int delayus)
   }
 }
 
-void ledstrip_setmode(int newmode, int r, int g, int b)
+void ledstrip_setmode(int newmode, CRGB newcolor)
 {
-  currentcolor = CRGB(r, g, b);
+  currentcolor = newcolor;
   currentmode = newmode;
   updateledstrip(true, true);
 }
 
-void ledstrip_setmode_delay(int newmode, int r, int g, int b, int newblinktime)
+void ledstrip_setmode_delay(int newmode, CRGB newcolor, int newblinktime)
 {
-  currentcolor = CRGB(r, g, b);
+  currentcolor = newcolor;
   currentmode = newmode;
   currentblinktime = newblinktime;
   updateledstrip(true, true);
@@ -423,7 +423,7 @@ void sequence1()
 void sequence2()
 {
   sweep_delay(800);
-  ledstrip_setmode_delay(MODE_LED_BLINK, RGB_BRIGHTNESS, RGB_BRIGHTNESS, RGB_BRIGHTNESS, LEDSTRIP_DELAY_MIN );
+  ledstrip_setmode_delay(MODE_LED_BLINK, CRGB::White, LEDSTRIP_DELAY_MIN );
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid2, 3000);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(120);
@@ -445,23 +445,23 @@ void sequence2()
   sweep(&fingerServo, fingerServoMid, fingerServoTo, 500);
   sweep_delay(100);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 500);
-  ledstrip_setmode(MODE_LED_OFF, 0, 0, 0 );
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void sequence3()
 {
-  ledstrip_setmode_delay(MODE_LED_KITT, 0, RGB_BRIGHTNESS, 0, LEDSTRIP_DELAY_MAX );
+  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::Green, LEDSTRIP_DELAY_MAX );
   sweep_delay(50);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
-  ledstrip_setmode(MODE_LED_OFF, 0, 0, 0 );
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void sequence4()
 {
-  ledstrip_setmode(MODE_LED_ON, RGB_BRIGHTNESS, 0, RGB_BRIGHTNESS );
+  ledstrip_setmode(MODE_LED_ON, CRGB::Purple );
   sweep_delay(500);
   sweep(&fingerServo, fingerServoFrom, fingerServoMid2, 1);
   sweep_delay(450);
@@ -469,7 +469,7 @@ void sequence4()
   sweep_delay(1);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
-  ledstrip_setmode(MODE_LED_OFF, 0, 0, 0 );
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void sequence5()
