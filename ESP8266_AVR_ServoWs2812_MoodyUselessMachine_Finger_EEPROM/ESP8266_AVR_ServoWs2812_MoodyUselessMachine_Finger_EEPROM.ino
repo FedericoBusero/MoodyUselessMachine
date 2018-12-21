@@ -236,7 +236,6 @@ void loop_led_blink(bool updateSelect)
 
 void loop_led_KITT(bool updateSelect)
 {
-  long blinktime = currentblinktime;
   static long starttime = 0;
   long currenttime = millis();
 
