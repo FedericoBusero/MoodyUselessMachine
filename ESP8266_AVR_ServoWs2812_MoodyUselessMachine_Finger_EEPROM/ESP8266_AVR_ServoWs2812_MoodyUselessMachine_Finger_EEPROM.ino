@@ -69,7 +69,6 @@ CRGB leds[NUMLEDPIXELS];
 CRGB currentcolor;
 int currentmode;
 
-#define RGB_BRIGHTNESS 255
 #define LEDSTRIP_DELAY_MAX 1000
 #define LEDSTRIP_DELAY_MIN 200
 #define LEDSTRIP_MAX_BRIGHTNESS 20
