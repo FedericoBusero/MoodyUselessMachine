@@ -7,12 +7,26 @@
 #include <FastLED.h>
 
 /*
-  Switch on ESP8266
+  Switch on ESP8266 e.g. ESP-01
   - GPIO0 (D3 on NodeMCU) & GPIO2 (D4 on NodeMCU) cannot be used for connecting the switch (they are used during the boot process)
   - GPIO3 (RX) and GPIO1 (TX) can be used (e.g. on ESP-01), but make sure the Serial port is not used by undefining DEBUG_SERIAL. RX is preferred over TX as its use as Serial port is also input
   - GPIO5 (D1 on NodeMCU) & GPIO4 (D2  on NodeMCU) can be used if I2C is not being used
   - GPIO14 (D5 on NodeMCU), GPIO12 (D6 on NodeMCU) and GPIO13 (D7 on NodeMCU) are the preferred switch inputs
-  - GPIO15 (D8 on NodeMCU) doesn't support INPUT_PULLUP and is being used during boot. Don't use it for the switch.
+  - GPIO15 (D8 on NodeMCU) doesn't support INPUT_PULLUP and is being used during boot. Don't use it for the switch. It would need pinmode INPUT as it typically has an external pulldown resistor
+  - GPIO16 (D0 on NodeMCU) is not possible in this code as it would need INPUT_PULLDOWN_16 and switch to be connected to VCC
+  - GPIO10 should also be possible (not tested)
+
+  Servo on ESP8266 e.g. ESP-01
+  - On NodeMCU, the servo can be connected to any of the following pwm pins: D1 - D8:
+      - GPIO5 (D1), GPIO4 (D2) are possible if no I2C is being used
+      - GPIO14 (D5), GPIO12 (D6), GPIO13 (D7) are the preferred servo pins
+      - GPIO15 (D8) ?? to be tested as it is being used during boot (the servo acts as pulldown resistor, should be ok but to be confirmed)
+      - GPIO0 (D3) and GPIO2 (D4) are also possible. But as they are used during the boot process, an external pull-up resistor is necessary 
+        (e.g. 220 kOhm connected to VCC)
+  - GPIO3 (RX) and GPIO1 (TX) maybe also can be used (e.g. on ESP-01) - to be tested, but make sure the Serial port is not used by undefining DEBUG_SERIAL. RX is preferred over TX as its use as Serial port is also input
+  - Maybe also GPIO10 works (to be tested)
+  - GPIO16 (D0 on NodeMCU) cannot be used (is not a PWM pin)
+
 */
 
 // #define HWMODE_ESP01
