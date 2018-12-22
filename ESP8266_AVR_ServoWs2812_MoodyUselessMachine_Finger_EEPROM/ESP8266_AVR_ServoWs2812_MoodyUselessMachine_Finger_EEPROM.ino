@@ -443,7 +443,6 @@ void sequence4()
   sweep(&fingerServo, fingerServoFrom, fingerServoMid2, 1);
   sweep_delay(450);
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 30000);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
   ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
@@ -501,7 +500,6 @@ void sequence7()
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
   sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
@@ -546,7 +544,6 @@ void sequence8()
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorFrom, 1);
   sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
@@ -559,7 +556,6 @@ void sequence9()
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 2000);
   sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1000);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
@@ -593,9 +589,7 @@ void sequence9()
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
   sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid, 5000);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorTo, 1000);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 1);
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
@@ -606,13 +600,9 @@ void sequence10()
 {
   sweep_delay(800);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 30000);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 3000);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 3000);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorMid, 30000);
-  sweep_delay(1);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
   sweep_delay(300);
 }
