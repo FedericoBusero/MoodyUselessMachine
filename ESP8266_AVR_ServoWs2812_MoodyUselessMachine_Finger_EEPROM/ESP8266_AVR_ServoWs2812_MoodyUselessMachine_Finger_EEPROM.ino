@@ -32,10 +32,10 @@
 // #define HWMODE_ESP01
 
 #ifdef HWMODE_ESP01 // ESP-01
-// TODO: test
+// TODO: check if another allocation is possible without external resistor
 #include <ESP8266WiFi.h>
 const int switchPin      = 3;  // GPIO3, RX port
-const int fingerServoPin = 0;  // GPIO0
+const int fingerServoPin = 0;  // GPIO0, needs external pull-up resistor
 const int ledstripPin    = 1;  // GPIO1, TX port
 
 #else
