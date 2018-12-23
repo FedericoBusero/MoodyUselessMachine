@@ -71,7 +71,7 @@ int fingerServoMid      = 1750; // a bit from the switch
 int fingerServoMid2     = 1950; // close to switch
 int fingerServoTo       = 2130; // move the switch
 
-#define SLOWDOWNMICROSEC 200 // 200 fast, 500 normal, 1000 slow
+long currentslowdown = 200;
 
 // WS2812 ledstrip
 
@@ -327,7 +327,7 @@ void sweep(Servo *srv, int from, int to, int delayus)
 {
   unsigned long startMillis = millis();
   float currPos;
-  unsigned long durMillis = ((unsigned long)(delayus + SLOWDOWNMICROSEC) * (unsigned long)(abs(to - from))) / 1000L;
+  unsigned long durMillis = ((unsigned long)(delayus + currentslowdown) * (unsigned long)(abs(to - from))) / 1000L;
   unsigned long currentMillis = millis();
   unsigned long endMillis = startMillis + durMillis;
 
@@ -373,12 +373,14 @@ void sweep_delay(unsigned long durMillis)
   }
 }
 
-// The sequences are based on the "Moody Useless Machine", Lamja Electronics
+// The sequences are inspired by the "Moody Useless Machine", Lamja Electronics
 // http://www.lamja.com/?p=451
 // http://www.lamja.com/blogfiles/UselessMachine.pde
 
 void sequence1()
 {
+  currentslowdown = 200;
+  ledstrip_setmode(MODE_LED_ON, CRGB::Blue );
   sweep_delay(700);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 3000);
   sweep_delay(1000);
@@ -389,12 +391,14 @@ void sequence1()
   sweep(&fingerServo, fingerServoMid, fingerServoTo, 500);
   sweep_delay(100);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 500);
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void sequence2()
 {
+  currentslowdown = 200;
   sweep_delay(800);
-  ledstrip_setmode_delay(MODE_LED_BLINK, CRGB::White, LEDSTRIP_DELAY_MIN );
+  ledstrip_setmode_delay(MODE_LED_BLINK, CRGB::White, 200 );
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid2, 3000);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(120);
@@ -421,7 +425,8 @@ void sequence2()
 
 void sequence3()
 {
-  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::Green, LEDSTRIP_DELAY_MAX );
+  currentslowdown = 200;
+  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::Green, 600 );
   sweep_delay(50);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
   sweep_delay(450);
@@ -432,10 +437,12 @@ void sequence3()
 
 void sequence4()
 {
+  currentslowdown = 200;
   ledstrip_setmode(MODE_LED_ON, CRGB::Purple );
   sweep_delay(500);
   sweep(&fingerServo, fingerServoFrom, fingerServoMid2, 1);
   sweep_delay(450);
+  ledstrip_setmode_delay(MODE_LED_RAINBOW, 0, 5000 );
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 30000);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
@@ -444,9 +451,15 @@ void sequence4()
 
 void sequence5()
 {
+  currentslowdown = 200;
+
+  ledstrip_setmode(MODE_LED_ON, CRGB::Yellow );
   sweep_delay(1000);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
   sweep_delay(450);
+
+  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::Yellow, 200 );
+
   sweep(&fingerServo, fingerServoTo, fingerServoMid2, 1);
   sweep_delay(110);
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 1);
@@ -459,27 +472,44 @@ void sequence5()
   sweep_delay(110);
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 1);
   sweep_delay(110);
+
+  ledstrip_setmode(MODE_LED_ON, CRGB::Yellow );
+
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void sequence6()
 {
+  currentslowdown = 400;
+
+  ledstrip_setmode(MODE_LED_ON, CRGB::Purple );
   sweep_delay(1500);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 1);
   sweep_delay(450);
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 1000);
+
   sweep_delay(2000);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1000);
+
+  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::White, 1000 );
   sweep_delay(2000);
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+
   sweep(&fingerServo, fingerServoDoorTo, fingerServoFrom, 1);
   sweep_delay(200);
 }
 
 void sequence7()
 {
+  currentslowdown = 300;
+
+  ledstrip_setmode_delay(MODE_LED_RAINBOW, 0, 1000 );
+
   sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 1);
   sweep_delay(200);
@@ -498,10 +528,15 @@ void sequence7()
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
+
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void sequence8()
 {
+  currentslowdown = 300;
+
+  ledstrip_setmode(MODE_LED_ON, CRGB::Blue );
   sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 1);
   sweep_delay(200);
@@ -511,6 +546,8 @@ void sequence8()
   sweep_delay(100);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1);
   sweep_delay(100);
+
+  ledstrip_setmode_delay(MODE_LED_BLINK, CRGB::Blue, 100 );
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
@@ -535,6 +572,9 @@ void sequence8()
   sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
   sweep_delay(50);
+
+
+  ledstrip_setmode(MODE_LED_ON, CRGB::Blue );
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorFrom, 1);
   sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1);
@@ -542,14 +582,23 @@ void sequence8()
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void sequence9()
 {
+  currentslowdown = 200;
+
   sweep_delay(1000);
+
+  ledstrip_setmode(MODE_LED_ON, CRGB::Red );
+
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 2000);
   sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1000);
+
+  ledstrip_setmode_delay(MODE_LED_BLINK, CRGB::Red, 100 );
+
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
@@ -581,6 +630,9 @@ void sequence9()
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
+
+  ledstrip_setmode(MODE_LED_ON, CRGB::Red );
+
   sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid, 5000);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorTo, 1000);
@@ -588,10 +640,13 @@ void sequence9()
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void sequence10()
 {
+  currentslowdown = 200;
+  ledstrip_setmode_delay(MODE_LED_RAINBOW, 0, 10000 );
   sweep_delay(800);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 30000);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 3000);
@@ -599,6 +654,7 @@ void sequence10()
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorMid, 30000);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
   sweep_delay(300);
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
 void playsequence()
