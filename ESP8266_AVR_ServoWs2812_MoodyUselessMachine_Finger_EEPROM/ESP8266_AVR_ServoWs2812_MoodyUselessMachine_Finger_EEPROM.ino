@@ -268,26 +268,6 @@ void loop_led_KITT(bool updateSelect)
   FastLED.show();
 }
 
-CRGB wheel(int WheelPos ) {
-  CRGB color;
-  if (85 > WheelPos) {
-    color.r = 0;
-    color.g = WheelPos * 3;
-    color.b = (255 - WheelPos * 3);;
-  }
-  else if (170 > WheelPos) {
-    color.r = WheelPos * 3;
-    color.g = (255 - WheelPos * 3);
-    color.b = 0;
-  }
-  else {
-    color.r = (255 - WheelPos * 3);
-    color.g = 0;
-    color.b = WheelPos * 3;
-  }
-  return color;
-}
-
 void loop_led_rainbow(bool updateSelect)
 {
   static long starttime = 0;
@@ -300,7 +280,7 @@ void loop_led_rainbow(bool updateSelect)
 
   long passedtime = (currenttime - starttime) % currentblinktime;
   int wheelpos = map(passedtime, 0, currentblinktime, 0, 255);
-  fill_solid (leds, NUMLEDPIXELS, wheel(wheelpos));
+  fill_solid (leds, NUMLEDPIXELS, CHSV( wheelpos, 255, 255));
   FastLED.show();
 }
 
