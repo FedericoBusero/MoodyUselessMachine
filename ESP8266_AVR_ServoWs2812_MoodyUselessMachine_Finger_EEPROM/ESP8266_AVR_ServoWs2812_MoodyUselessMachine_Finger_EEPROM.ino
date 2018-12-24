@@ -194,18 +194,6 @@ void eeprom_write_next_sequence()
 #endif
 }
 
-
-// https://github.com/todbot/ServoEaser/blob/master/examples/ServoEaser3Callbacks/ServoEaser3Callbacks.ino
-float ServoEaser_linear (float t, float b, float c, float d) {
-  return c * t / d + b;
-}
-
-inline float ServoEaser_easeInOutCubic(float t, float b, float c, float d)
-{
-  if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
-  return c / 2 * ((t -= 2) * t * t + 2) + b;
-}
-
 void loop_led_on(bool updateSelect, bool updateRGB)
 {
   if (updateSelect || updateRGB)
@@ -322,6 +310,16 @@ void updateledstrip(bool updateSelect, bool updateRGB)
   }
 }
 
+// https://github.com/todbot/ServoEaser/blob/master/examples/ServoEaser3Callbacks/ServoEaser3Callbacks.ino
+float ServoEaser_linear (float t, float b, float c, float d) {
+  return c * t / d + b;
+}
+
+inline float ServoEaser_easeInOutCubic(float t, float b, float c, float d)
+{
+  if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
+  return c / 2 * ((t -= 2) * t * t + 2) + b;
+}
 
 void sweep(Servo *srv, int from, int to, int delayus)
 {
@@ -720,9 +718,7 @@ void setup() {
   pinModeGpio(ledstripPin);
   FastLED.addLeds<NEOPIXEL, ledstripPin>(leds, NUMLEDPIXELS);
   FastLED.setBrightness(LEDSTRIP_MAX_BRIGHTNESS);
-  for (int i = 0; i < NUMLEDPIXELS; i++) {
-    leds[i] = CRGB::Black;
-  }
+  FastLED.clear();
 
   currentcolor = CRGB::Black;
   currentmode = MODE_LED_OFF;
