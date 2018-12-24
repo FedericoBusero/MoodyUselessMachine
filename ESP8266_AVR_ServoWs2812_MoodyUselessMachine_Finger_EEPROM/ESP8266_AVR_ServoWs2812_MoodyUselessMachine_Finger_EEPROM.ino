@@ -310,6 +310,21 @@ void updateledstrip(bool updateSelect, bool updateRGB)
   }
 }
 
+void ledstrip_setmode(int newmode, CRGB newcolor)
+{
+  currentcolor = newcolor;
+  currentmode = newmode;
+  updateledstrip(true, true);
+}
+
+void ledstrip_setmode_delay(int newmode, CRGB newcolor, int newblinktime)
+{
+  currentcolor = newcolor;
+  currentmode = newmode;
+  currentblinktime = newblinktime;
+  updateledstrip(true, true);
+}
+
 // https://github.com/todbot/ServoEaser/blob/master/examples/ServoEaser3Callbacks/ServoEaser3Callbacks.ino
 float ServoEaser_linear (float t, float b, float c, float d) {
   return c * t / d + b;
@@ -339,21 +354,6 @@ void sweep(Servo *srv, int from, int to, int delayus)
     updateledstrip(false, false);
     yield();
   }
-}
-
-void ledstrip_setmode(int newmode, CRGB newcolor)
-{
-  currentcolor = newcolor;
-  currentmode = newmode;
-  updateledstrip(true, true);
-}
-
-void ledstrip_setmode_delay(int newmode, CRGB newcolor, int newblinktime)
-{
-  currentcolor = newcolor;
-  currentmode = newmode;
-  currentblinktime = newblinktime;
-  updateledstrip(true, true);
 }
 
 void sweep_delay(unsigned long durMillis)
