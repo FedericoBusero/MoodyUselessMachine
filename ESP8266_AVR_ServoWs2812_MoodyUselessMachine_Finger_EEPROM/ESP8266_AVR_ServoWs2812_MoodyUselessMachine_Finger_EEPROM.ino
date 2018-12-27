@@ -277,9 +277,7 @@ void loop_led_off(bool updateSelect)
 
   if (updateSelect)
   {
-    for (int i = 0; i < NUMLEDPIXELS; i++) {
-      leds[i] = CRGB::Black;
-    }
+    FastLED.clear();
     FastLED.show();
   }
 }
