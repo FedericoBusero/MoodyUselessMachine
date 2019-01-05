@@ -37,6 +37,7 @@
 const int switchPin      = 3;  // GPIO3, RX port
 const int fingerServoPin = 0;  // GPIO0, needs external pull-up resistor
 const int ledstripPin    = 1;  // GPIO1, TX port
+// #define BUZZER_PIN 2        // GPIO2 ?? needs external pull-up resistor?
 
 #else
 #ifdef ESP8266 // NodeMCU
@@ -44,18 +45,42 @@ const int ledstripPin    = 1;  // GPIO1, TX port
 const int switchPin      = 14; // GPIO14 (D5 on NodeMCU)
 const int fingerServoPin = 12; // GPIO12 (D6 on NodeMCU)
 const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
+#define BUZZER_PIN 13          // GPIO13 (D7 on NodeMCU)
 #define LED_PIN LED_BUILTIN    // GPIO16, D0 on NodeMCU
 
 #else // AVR
 const int switchPin      = 2;
 const int fingerServoPin = 6;
 const int ledstripPin    = 5;
+#define BUZZER_PIN 8
 #define LED_PIN 13
 
 #endif
 
 #define DEBUG_SERIAL Serial
 
+#endif
+
+#ifdef BUZZER_PIN
+#include "rtttl.h"
+
+// const char song_P[] PROGMEM = "Ghostbusters:d=4,o=5,b=180:4c5,4c5,8e5,8f5,8g5,8p, 4a#5,4a#5,4f5,4f5,4c5,4c5,8e5,8f5,8g5,8p,4a#5,4a#5,4f5";
+// const char song_P[] PROGMEM = "dkong_level:d=4,o=5,b=200:c6,32p,8d6,8p,f6,8p,8d6,16p,8c6,16p,8d6,16p,a#";
+// const char song_P[] PROGMEM = "DonkeyKong:d=4,o=5,b=200:8a#,8p,8d6,16p,16f.6,16g.6,16f.6,8a#,8p,8d6,16p,16f.6,16g.6,16f.6,8a#,8p,8d6,16p,16f.6,16g.6,16f.6,8a#,8p,8d6,16p,16f.6,16g.6,16f.6";
+// const char song_P[] PROGMEM = "Dambuste:d=4,o=5,b=63:4f6,8a#6,8f6,8f6,16d#6,16d6,8d#6,8f6,4d6,8f6,8d6,8d6,16c6,16a#,8a,8c6,8a#.,16c6,8d6,8g6,8f.6,16d6,4f6,8c6,8f6,16g6,16a6,8a#6,4a6,4p";
+// const char song_P[] PROGMEM = "AxelF:d=4,o=5,b=125:32p,8g,8p,16a#.,8p,16g,16p,16g,8c6, 8g,8f,8g,8p,16d.6,8p,16g,16p,16g,8d#6,8d6,8a#,8g,8d6,8g6, 16g,16f,16p,16f,8d,8a#,2g,p,SS,16f6,8d6,8c6,8a#,g,8a#.,16g, 16p,16g,8c6,8g,8f,g,8d.6,16g,16p,16g,8d#6,8d6,8a#,8g,8d6, 8g6,16g,16f,16p,16f,8d,8a#,2g";
+// const char song_P[] PROGMEM = "PacMan:b=160:32b,32p,32b6,32p,32f#6,32p,32d#6,32p,32b6,32f#6,16p,16d#6,16p,32c6,32p,32c7,32p,32g6,32p,32e6,32p,32c7,32g6,16p,16e6,16p,32b,32p,32b6,32p,32f#6,32p,32d#6,32p,32b6,32f#6,16p,16d#6,16p,32d#6,32e6,32f6,32p,32f6,32f#6,32g6,32p,32g6,32g#6,32a6,32p,32b.6";
+// const char song_P[] PROGMEM = "The Final Countdown:d=4,o=5,b=125:p,8p,16b,16a,b,e,p,8p,16c6,16b,8c6,8b,a,p,8p,16c6,16b,c6,e,p,8p,16a,16g,8a,8g,8f#,8a,g.,16f#,16g,a.,16g,16a,8b,8a,8g,8f#,e,c6,2b.,16b,16c6,16b,16a,1b";
+// const char song_P[] PROGMEM = "MissionImpossi:d=4,o=5,b=180:8d#6,8c6,1g,8d#6,8c6,1f#,8d#6,8c6,1f,8d#,8f,1p,8g#,8g,1f#6,8g#,8g,1f6,8g#,8g,1e6,8d#6,8d6,2p";
+// const char song_P[] PROGMEM = "Star Trek:d=4,o=5,b=63:8f.,16a#,d#.6,8d6,16a#.,16g.,16c.6,f6";
+// const char song_P[] PROGMEM = "St Wars:d=4,o=5,b=180:8f,8f,8f,2a#.,2f.6,8d#6,8d6,8c6,2a#.6,f.6,8d#6,8d6,8c6,2a#.6,f.6,8d#6,8d6,8d#6,2c6,p,8f,8f,8f,2a#.,2f.6,8d#6,8d6,8c6,2a#.6,f.6,8d#6,8d6,8c6,2a#.6,f.6,8d#6,8d6,8d#6,2c6";
+// const char song_P[] PROGMEM = "KnightRider:d=4,o=5,b=63:16e,32f,32e,8b,16e6,32f6,32e6,8b,16e,32f,32e,16b,16e6,d6,8p,p,16e,32f,32e,8b,16e6,32f6,32e6,8b,16e,32f,32e,16b,16e6,f6,p";
+// const char song_P[] PROGMEM = "Flntstn:d=4,o=5,b=200:g#,c#,8p,c#6,8a#,g#,c#,8p,g#,8f#,8f,8f,8f#,8g#,c#,d#,2f,2p,g#,c#,8p,c#6,8a#,g#,c#,8p,g#,8f#,8f,8f,8f#,8g#,c#,d#,2c#";
+// const char song_P[] PROGMEM = "Beethoven:d=4,o=5,b=160:c,e,c,g,c,c6,8b,8a,8g,8a,8g,8f,8e,8f,8e,8d,c,e,g,e,c6,g";
+// const char song_P[] PROGMEM = "Tetris:d=4,o=5,b=200:e6,8b,8c6,8d6,16e6,16d6,8c6,8b,a,8a,8c6,e6,8d6,8c6,b,8b,8c6,d6,e6,c6,a,2a,8p,d6,8f6,a6,8g6,8f6,e6,8e6,8c6,e6,8d6,8c6,b,8b,8c6,d6,e6,c6,a,a";
+const char song_P[] PROGMEM = "StarWars/Imp:d=4,o=5,b=112:8d.,16p,8d.,16p,8d.,16p,8a#4,16p,16f,8d.,16p,8a#4,16p,16f,d.,8p,8a.,16p,8a.,16p,8a.,16p,8a#,16p,16f,8c#.,16p,8a#4,16p,16f,d.,8p,8d.6,16p,8d,16p,16d,8d6,8p,8c#6,16p,16c6,16b,16a#,8b,8p,16d#,16p,8g#,8p,8g,16p,16f#,16f,16e,8f,8p,16a#4,16p,2c#";
+
+ProgmemPlayer player(BUZZER_PIN);
 #endif
 
 Servo fingerServo;
@@ -350,6 +375,9 @@ void sweep(Servo *srv, int from, int to, int delayus)
 
     srv->writeMicroseconds(currPos);
     updateledstrip(false, false);
+#ifdef BUZZER_PIN
+    player.pollSong();
+#endif
     yield();
   }
 }
@@ -364,10 +392,23 @@ void sweep_delay(unsigned long durMillis)
   {
     currentMillis = millis();
 
+#ifdef BUZZER_PIN
+    player.pollSong();
+#endif
     updateledstrip(false, false);
     yield();
   }
 }
+
+#ifdef BUZZER_PIN
+void player_finishSong()
+{
+  while (player.pollSong()) {
+    updateledstrip(false, false);
+    yield();
+  }
+}
+#endif
 
 // The sequences are inspired by the "Moody Useless Machine", Lamja Electronics
 // http://www.lamja.com/?p=451
@@ -642,6 +683,9 @@ void sequence9()
 void sequence10()
 {
   currentslowdown = 200;
+#ifdef BUZZER_PIN
+  player.setSong(song_P);
+#endif
   ledstrip_setmode_delay(MODE_LED_RAINBOW, 0, 10000 );
   sweep_delay(800);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 30000);
@@ -650,6 +694,9 @@ void sequence10()
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorMid, 30000);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
   sweep_delay(300);
+#ifdef BUZZER_PIN
+  player_finishSong();
+#endif
   ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
