@@ -407,6 +407,7 @@ void player_finishSong()
     updateledstrip(false, false);
     yield();
   }
+  player.setSong(NULL);
 }
 #endif
 
