@@ -157,6 +157,10 @@ class Player {
 			// find the start (skip name, etc)
 
 			while (peek_byte() != ':'){
+				if (!peek_byte())
+				{
+					return false;
+				}
 				pop_byte(); //(ignore name characters)
 			}
 						
@@ -263,7 +267,7 @@ class Player {
 		/** Plays the whole tune, blocking until it is finished. */
 		void finishSong(){
 			while(this->stepSong()){
-				//do nothing
+				delay(1);
 			}
 		}
 		
@@ -509,7 +513,7 @@ class ConstPlayer: public Player{
 	public:
 
 		ConstPlayer(uint8_t tonePin)
-			:Player(tonePin) //call superclass constructor
+			:Player(tonePin), songStart(NULL) //call superclass constructor
 		{
 			//do nothing
 		}
@@ -522,37 +526,49 @@ class ConstPlayer: public Player{
 };
 
 
-class ProgmemPlayer: public ConstPlayer{
+class ProgmemPlayer: public ConstPlayer {
 
-	public:
-		ProgmemPlayer(uint8_t tonePin)
-			:ConstPlayer(tonePin)
-		{
-			//do nothing
-		}
+  public:
+    ProgmemPlayer(uint8_t tonePin)
+      : ConstPlayer(tonePin)
+    {
+      //do nothing
+    }
 
-	private:
-		char get_byte(int pos)
-		{
-			return pgm_read_byte(songStart + pos);
-		}
-
+  private:
+    char get_byte(int pos)
+    {
+      if (songStart)
+      {
+        return pgm_read_byte(songStart + pos);
+      }
+      else
+      {
+        return 0;
+      }
+    }
 };
 
-class RamPlayer: public ConstPlayer{
+class RamPlayer: public ConstPlayer {
 
-	public:
-		RamPlayer(uint8_t tonePin)
-			:ConstPlayer(tonePin)
-		{
-			//do nothing
-		}
-		
+  public:
+    RamPlayer(uint8_t tonePin)
+      : ConstPlayer(tonePin)
+    {
+      //do nothing
+    }
 
-	private:
-		char get_byte(int pos)
-		{
-			return *(songStart + pos);
-		}
 
+  private:
+    char get_byte(int pos)
+    {
+      if (songStart)
+      {
+        return *(songStart + pos);
+      }
+      else
+      {
+        return 0;
+      }
+    }
 };
