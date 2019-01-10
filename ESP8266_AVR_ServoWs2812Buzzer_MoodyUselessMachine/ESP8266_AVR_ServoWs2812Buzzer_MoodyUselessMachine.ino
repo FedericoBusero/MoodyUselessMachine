@@ -401,11 +401,18 @@ void sweep_delay(unsigned long durMillis)
 }
 
 #ifdef BUZZER_PIN
-void player_finishSong()
+void player_stopPlaying(bool waitUntilEndTune)
 {
-  while (player.pollSong()) {
-    updateledstrip(false, false);
-    yield();
+  if (waitUntilEndTune)
+  {
+    while (player.pollSong()) {
+      updateledstrip(false, false);
+      yield();
+    }
+  }
+  else
+  {
+    player.silence();
   }
   player.setSong(NULL);
 }
@@ -696,7 +703,7 @@ void sequence10()
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
   sweep_delay(300);
 #ifdef BUZZER_PIN
-  player_finishSong();
+  player_stopPlaying(false);
 #endif
   ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
