@@ -132,7 +132,7 @@ enum
 
 #define EEPROM_CONFIG_TEST_VALUE 0x4B
 
-#define SEQUENCE_END   17
+#define SEQUENCE_END   12
 
 static int currentseq = 0;
 
@@ -718,22 +718,18 @@ void playsequence()
   void (*playlist[SEQUENCE_END+1])() = {
     sequence3, 
     sequence1,
-    sequence3,
     sequence9,
-    sequence3,
     sequence5,
     sequence3,
     sequence7,
-    sequence3,
     sequence2,
-    sequence3,
     sequence10,
     sequence3,
     sequence8,
-    sequence3,
     sequence6,
     sequence3,
-    sequence4};
+    sequence4
+  };
 
   if ((currentseq>0) && (currentseq<=SEQUENCE_END))
   {
