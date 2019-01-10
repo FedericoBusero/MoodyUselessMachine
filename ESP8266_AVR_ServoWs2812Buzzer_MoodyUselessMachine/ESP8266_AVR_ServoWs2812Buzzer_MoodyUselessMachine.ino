@@ -132,10 +132,9 @@ enum
 
 #define EEPROM_CONFIG_TEST_VALUE 0x4B
 
-#define SEQUENCE_START 0
 #define SEQUENCE_END   17
 
-static int currentseq = SEQUENCE_START;
+static int currentseq = 0;
 
 int getnextseq()
 {
@@ -145,7 +144,7 @@ int getnextseq()
   }
   else
   {
-    return SEQUENCE_START;
+    return 0;
   }
 }
 
@@ -168,7 +167,7 @@ void eeprom_reset()
 #endif
   EEPROM.write(EEPROM_CONFIG_FLAG, 1);
   EEPROM.write(EEPROM_CONFIG_TEST, EEPROM_CONFIG_TEST_VALUE);
-  EEPROM.write(EEPROM_SEQUENCE, SEQUENCE_START);
+  EEPROM.write(EEPROM_SEQUENCE, 0);
 #ifdef ESP8266
   EEPROM.commit();
 #endif
@@ -184,10 +183,10 @@ void eeprom_init()
     if (EEPROM.read(EEPROM_CONFIG_TEST) == EEPROM_CONFIG_TEST_VALUE)
     {
       currentseq = EEPROM.read(EEPROM_SEQUENCE);
-      if ((currentseq < SEQUENCE_START) || (currentseq > SEQUENCE_END))
+      if ((currentseq < 0) || (currentseq > SEQUENCE_END))
       {
         eeprom_reset();
-        currentseq = SEQUENCE_START;
+        currentseq = 0;
       }
       else
       {
@@ -716,24 +715,30 @@ void playsequence()
   DEBUG_SERIAL.flush();
 #endif
 
-  if (currentseq == 0) sequence3();
-  if (currentseq == 1) sequence1();
-  if (currentseq == 2) sequence3();
-  if (currentseq == 3) sequence9();
-  if (currentseq == 4) sequence3();
-  if (currentseq == 5) sequence5();
-  if (currentseq == 6) sequence3();
-  if (currentseq == 7) sequence7();
-  if (currentseq == 8) sequence3();
-  if (currentseq == 9) sequence2();
-  if (currentseq == 10) sequence3();
-  if (currentseq == 11) sequence10();
-  if (currentseq == 12) sequence3();
-  if (currentseq == 13) sequence8();
-  if (currentseq == 14) sequence3();
-  if (currentseq == 15) sequence6();
-  if (currentseq == 16) sequence3();
-  if (currentseq == 17) sequence4();
+  void (*playlist[SEQUENCE_END+1])() = {
+    sequence3, 
+    sequence1,
+    sequence3,
+    sequence9,
+    sequence3,
+    sequence5,
+    sequence3,
+    sequence7,
+    sequence3,
+    sequence2,
+    sequence3,
+    sequence10,
+    sequence3,
+    sequence8,
+    sequence3,
+    sequence6,
+    sequence3,
+    sequence4};
+
+  if ((currentseq>0) && (currentseq<=SEQUENCE_END))
+  {
+    playlist[currentseq]();
+  }
 
 #ifdef DEBUG_SERIAL
   DEBUG_SERIAL.println("Sequence ended");
