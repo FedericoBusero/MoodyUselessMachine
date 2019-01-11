@@ -697,13 +697,13 @@ void sequence10()
   sweep_delay(800);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 30000);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 3000);
+#ifdef BUZZER_PIN
+  player_stopPlaying(false);
+#endif
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 3000);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorMid, 30000);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
   sweep_delay(300);
-#ifdef BUZZER_PIN
-  player_stopPlaying(false);
-#endif
   ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
 }
 
