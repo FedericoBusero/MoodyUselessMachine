@@ -237,7 +237,7 @@ class Player {
 			if(stepDue()){
 				//process next Step, and check if it is the last
 				if(!nextStep()){
-					// initSong();
+					initSong();
 					return false; //no more steps in the melody
 				}
 			}
@@ -249,7 +249,7 @@ class Player {
 		 * stay silent even after this has returned. */
 		bool stepSong(){
 			if(!nextStep()){
-				// initSong();
+				initSong();
 				return false; //no more steps in the melody
 			}
 			else{ //a Step just started
