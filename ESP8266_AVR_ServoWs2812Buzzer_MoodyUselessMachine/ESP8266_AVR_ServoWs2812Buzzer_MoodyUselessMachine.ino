@@ -45,7 +45,7 @@ const int ledstripPin    = 1;  // GPIO1, TX port
 const int switchPin      = 14; // GPIO14 (D5 on NodeMCU)
 const int fingerServoPin = 12; // GPIO12 (D6 on NodeMCU)
 const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
-#define BUZZER_PIN 13          // GPIO13 (D7 on NodeMCU)
+#define BUZZER_PIN 5           // GPIO5  (D1 on NodeMCU)
 #define LED_PIN LED_BUILTIN    // GPIO16, D0 on NodeMCU
 
 #else // AVR
