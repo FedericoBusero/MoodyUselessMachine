@@ -131,6 +131,9 @@ class Player {
 			this->defaultOctave = 6;
 			this->bpm = 63;
 			this->silent = true;
+			this->periodStart = 0;
+			this->periodLength = 0;
+			this->wholenote = 0;
 		}
 						
 		void transpose(int octaves){
