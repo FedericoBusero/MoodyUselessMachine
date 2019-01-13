@@ -34,25 +34,25 @@
 #ifdef HWMODE_ESP01 // ESP-01
 // TODO: check if another allocation is possible without external resistor
 #include <ESP8266WiFi.h>
-const int switchPin      = 3;  // GPIO3, RX port
 const int fingerServoPin = 0;  // GPIO0, needs external pull-up resistor
 const int ledstripPin    = 1;  // GPIO1, TX port
 // #define BUZZER_PIN 2        // GPIO2 ?? needs external pull-up resistor?
+// #define SWITCH_PIN 3         // GPIO3, RX port
 
 #else
 #ifdef ESP8266 // NodeMCU
 #include <ESP8266WiFi.h>
-const int switchPin      = 14; // GPIO14 (D5 on NodeMCU)
 const int fingerServoPin = 12; // GPIO12 (D6 on NodeMCU)
 const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
 #define BUZZER_PIN 5           // GPIO5  (D1 on NodeMCU)
+#define SWITCH_PIN 14          // GPIO14 (D5 on NodeMCU)
 #define LED_PIN LED_BUILTIN    // GPIO16, D0 on NodeMCU
 
 #else // AVR
-const int switchPin      = 2;
 const int fingerServoPin = 6;
 const int ledstripPin    = 5;
 #define BUZZER_PIN 8
+#define SWITCH_PIN 2
 #define LED_PIN 13
 
 #endif
@@ -801,8 +801,10 @@ void setup() {
 
   eeprom_init();
 
-  pinModeGpio(switchPin);
-  pinMode(switchPin, INPUT_PULLUP);
+#ifdef SWITCH_PIN
+  pinModeGpio(SWITCH_PIN);
+  pinMode(SWITCH_PIN, INPUT_PULLUP);
+#endif
 
 #ifdef LED_PIN
   pinModeGpio(LED_PIN);
@@ -826,7 +828,8 @@ void setup() {
 void loop() {
   int next_sequence;
 
-  if (digitalRead(switchPin) == LOW) {
+#ifdef SWITCH_PIN
+  if (digitalRead(SWITCH_PIN) == LOW) {
 #ifdef LED_PIN
     digitalWrite(LED_PIN, LOW);
 #endif
@@ -842,6 +845,7 @@ void loop() {
     delay(100);
     return;
   }
+#endif
 
   eeprom_write_next_sequence();
 
