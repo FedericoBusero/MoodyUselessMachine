@@ -134,6 +134,7 @@ class Player {
 			this->periodStart = 0;
 			this->periodLength = 0;
 			this->wholenote = 0;
+			this->transposeOctaves = 0;
 		}
 						
 		void transpose(int octaves){
