@@ -164,20 +164,19 @@ enum
 // EEPROM defines
 // TODO: met struct werken en put & get & sizeof
 
-#define EEPROM_SIZE 4
-#define EEPROM_CONFIG_FLAG    0
-#define EEPROM_CONFIG_TEST    1
-#define EEPROM_SEQUENCE       2
+#define EEPROM_SIZE 2
+#define EEPROM_CONFIG_TEST    0
+#define EEPROM_SEQUENCE       1
 
-#define EEPROM_CONFIG_TEST_VALUE 0x4B
+#define EEPROM_CONFIG_TEST_VALUE 0x4C
 
-#define SEQUENCE_END   12
+#define PLAYLIST_LENGTH 13
 
-static int currentseq = 0;
+static int currentseq = -1;
 
 int getnextseq()
 {
-  if (currentseq < SEQUENCE_END)
+  if (currentseq < PLAYLIST_LENGTH-1)
   {
     return (currentseq + 1);
   }
@@ -204,7 +203,6 @@ void eeprom_reset()
   DEBUG_SERIAL.println("eeprom_reset");
   DEBUG_SERIAL.flush();
 #endif
-  EEPROM.write(EEPROM_CONFIG_FLAG, 1);
   EEPROM.write(EEPROM_CONFIG_TEST, EEPROM_CONFIG_TEST_VALUE);
   EEPROM.write(EEPROM_SEQUENCE, 0);
 #ifdef ESP8266
@@ -217,27 +215,20 @@ void eeprom_init()
 #ifdef ESP8266
   EEPROM.begin(EEPROM_SIZE);
 #endif
-  if (EEPROM.read(EEPROM_CONFIG_FLAG) == 1)
+  if (EEPROM.read(EEPROM_CONFIG_TEST) == EEPROM_CONFIG_TEST_VALUE)
   {
-    if (EEPROM.read(EEPROM_CONFIG_TEST) == EEPROM_CONFIG_TEST_VALUE)
+    currentseq = EEPROM.read(EEPROM_SEQUENCE);
+    if ((currentseq < 0) || (currentseq >= PLAYLIST_LENGTH))
     {
-      currentseq = EEPROM.read(EEPROM_SEQUENCE);
-      if ((currentseq < 0) || (currentseq > SEQUENCE_END))
-      {
-        eeprom_reset();
-        currentseq = 0;
-      }
-      else
-      {
-#ifdef DEBUG_SERIAL
-        DEBUG_SERIAL.print("currentseq: ");
-        DEBUG_SERIAL.println(currentseq);
-#endif
-      }
+      eeprom_reset();
+      currentseq = 0;
     }
     else
     {
-      eeprom_reset();
+#ifdef DEBUG_SERIAL
+      DEBUG_SERIAL.print("currentseq: ");
+      DEBUG_SERIAL.println(currentseq);
+#endif
     }
   }
   else
@@ -246,12 +237,12 @@ void eeprom_init()
   }
 }
 
-void eeprom_write_next_sequence()
+void eeprom_write_currentseq()
 {
 #ifdef DEBUG_SERIAL
-  DEBUG_SERIAL.println("eeprom_write_next_sequence");
+  DEBUG_SERIAL.println("eeprom_write_currentseq");
 #endif
-  EEPROM.write(EEPROM_SEQUENCE, getnextseq());
+  EEPROM.write(EEPROM_SEQUENCE, currentseq);
 #ifdef ESP8266
   EEPROM.commit();
 #endif
@@ -759,7 +750,7 @@ void playsequence()
   DEBUG_SERIAL.flush();
 #endif
 
-  void (*playlist[SEQUENCE_END+1])() = {
+  void (*playlist[PLAYLIST_LENGTH])() = {
     sequence3, 
     sequence1,
     sequence9,
@@ -775,7 +766,7 @@ void playsequence()
     sequence4
   };
 
-  if ((currentseq>0) && (currentseq<=SEQUENCE_END))
+  if ((currentseq >= 0) && (currentseq <PLAYLIST_LENGTH))
   {
     playlist[currentseq]();
   }
@@ -826,8 +817,6 @@ void setup() {
 }
 
 void loop() {
-  int next_sequence;
-
 #ifdef SWITCH_PIN
   if (digitalRead(SWITCH_PIN) == LOW) {
 #ifdef LED_PIN
@@ -847,11 +836,11 @@ void loop() {
   }
 #endif
 
-  eeprom_write_next_sequence();
+  currentseq = getnextseq();
+
+  eeprom_write_currentseq();
 
   playsequence();
-
-  currentseq = getnextseq();
 
   // Power off
   fingerServo.writeMicroseconds(fingerServoPowerOff);
