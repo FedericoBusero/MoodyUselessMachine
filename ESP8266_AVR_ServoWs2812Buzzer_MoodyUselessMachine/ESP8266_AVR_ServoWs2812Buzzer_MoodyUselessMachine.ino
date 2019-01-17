@@ -152,6 +152,9 @@ int currentmode;
 #define LEDSTRIP_MAX_BRIGHTNESS 20
 long currentblinktime;
 
+#define TIMEOUT_MS 30000L // servo will go to power off position after x milliseconds of inactivity
+long last_activity;
+
 enum
 {
   MODE_LED_KITT=0,
@@ -824,9 +827,40 @@ void setup() {
   currentcolor = CRGB::Black;
   currentmode = MODE_LED_OFF;
   currentblinktime = LEDSTRIP_DELAY_MAX;
+  
+  last_activity = millis();
 }
 
+
+void lookAroundPowerDown()
+{
+  // "Look around" to see if it's safe to power power down the box
+  sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1000);
+
+  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::CRGB::DarkSeaGreen, 1000 );
+  sweep_delay(2000);
+  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+
+  sweep(&fingerServo, fingerServoDoorTo, fingerServoFrom, 1);
+  sweep_delay(200);
+
+  // Move servo to Power off position
+  fingerServo.writeMicroseconds(fingerServoPowerOff);
+  delay(100);
+
+  // this code is normally no longer executed, as the power should be shut down by the servo.
+  // in case the power is still on, just continue
+
+  last_activity = millis();
+}
+
+
 void loop() {
+  if (millis() > last_activity + TIMEOUT_MS)
+  {
+    lookAroundPowerDown();
+  }
+
 #ifdef SWITCH_PIN
   if (digitalRead(SWITCH_PIN) == LOW) {
 #ifdef LED_PIN
@@ -852,7 +886,6 @@ void loop() {
 
   playsequence();
 
-  // Power off
-  fingerServo.writeMicroseconds(fingerServoPowerOff);
+  last_activity = millis();
 }
 
