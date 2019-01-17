@@ -722,11 +722,15 @@ void sequence10()
   currentslowdown = 200;
 #ifdef BUZZER_PIN
   int songnr = random(NUMSONGS) + 1;
+  player.setSong(songlist[songnr]); // or take one song e.g. song_P1
 #ifdef DEBUG_SERIAL
+  char songname[20+1];
   DEBUG_SERIAL.print("Start song nr ");
   DEBUG_SERIAL.println(songnr);
+  DEBUG_SERIAL.print("Name: ");
+  player.getName(songname,20);
+  DEBUG_SERIAL.println(songname);
 #endif
-  player.setSong(songlist[songnr]); // or take one song e.g. song_P1
 #endif
   ledstrip_setmode_delay(MODE_LED_RAINBOW, 0, 10000 );
   sweep_delay(800);
