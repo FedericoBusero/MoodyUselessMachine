@@ -802,6 +802,12 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 #endif
 
+#ifdef BUZZER_PIN
+  pinModeGpio(BUZZER_PIN);
+  pinMode(BUZZER_PIN, OUTPUT);
+  player.transpose(-1);
+#endif
+  
   pinModeGpio(fingerServoPin);
   fingerServo.writeMicroseconds(fingerServoFrom);
   fingerServo.attach(fingerServoPin);
