@@ -743,7 +743,7 @@ void sequence10()
   player_stopPlaying(false);
 #endif
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 3000);
-  sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorMid, 30000);
+  sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorMid, 10000);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorFrom, 1);
   sweep_delay(300);
   ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
