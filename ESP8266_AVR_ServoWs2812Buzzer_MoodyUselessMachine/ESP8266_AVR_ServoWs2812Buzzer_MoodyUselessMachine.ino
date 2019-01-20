@@ -173,7 +173,7 @@ enum
 
 #define EEPROM_CONFIG_TEST_VALUE 0x4C
 
-#define PLAYLIST_LENGTH 13
+#define PLAYLIST_LENGTH 12
 
 static int currentseq = -1;
 
@@ -762,7 +762,6 @@ void playsequence()
     sequence1,
     sequence9,
     sequence5,
-    sequence3,
     sequence7,
     sequence2,
     sequence10,
