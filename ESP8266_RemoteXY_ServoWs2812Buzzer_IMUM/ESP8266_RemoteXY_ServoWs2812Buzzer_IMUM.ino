@@ -1,10 +1,5 @@
 // TODO
-// currentmovemode uit eeprom naar remotexy struct brengen in setup
-// slider weg uit remotexy interface
-// titel tonen op remotexy
 // servo attach/detach in playsequence
-
-// attach/detach in sweep functie
 // minidelays -> echte delays -> sweep_delay er meestal uit
 // bewegingen in array stoppen
 
@@ -108,11 +103,10 @@ struct {
 // #define HWMODE_ESP01
 
 #ifdef HWMODE_ESP01 // ESP-01
-// TODO: check if another allocation is possible without external resistor
 const int fingerServoPin = 0;  // GPIO0, needs external pull-up resistor
 const int ledstripPin    = 1;  // GPIO1, TX port
-// #define BUZZER_PIN 2        // GPIO2 ?? needs external pull-up resistor?
-// #define SWITCH_PIN 3         // GPIO3, RX
+#define BUZZER_PIN 2        // GPIO2 
+#define SWITCH_PIN 3         // GPIO3, RX
 
 #else
 #ifdef ESP8266 // NodeMCU
