@@ -821,6 +821,8 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, ledstripPin>(leds, NUMLEDPIXELS);
   FastLED.setBrightness(LEDSTRIP_MAX_BRIGHTNESS);
   FastLED.clear();
+  FastLED.show();
+  FastLED.delay(2);
 
   currentcolor = CRGB::Black;
   currentmode = MODE_LED_OFF;
