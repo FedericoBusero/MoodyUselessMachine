@@ -256,6 +256,7 @@ enum
 
 static int currentseq = -1;
 static int currentmovemode = MODE_SEQ_ITERATE;
+static int remotexy_enabled = true;
 
 int getnextseq()
 {
@@ -670,8 +671,11 @@ void sweep(Servo *srv, int from, int to, int delayus)
 #ifdef BUZZER_PIN
     player.pollSong();
 #endif
-
-    RemoteXY_Handler ();
+     
+    if (remotexy_enabled)
+    {
+      RemoteXY_Handler ();
+    }
     yield();
   }
 }
@@ -690,7 +694,10 @@ void sweep_delay(unsigned long durMillis)
     player.pollSong();
 #endif
     updateledstrip(false, false);
-    RemoteXY_Handler ();
+    if (remotexy_enabled)
+    {
+      RemoteXY_Handler ();
+    }
 
     yield();
   }
@@ -993,7 +1000,10 @@ void sequence10()
   int songnr = random(NUMSONGS);
   player.setSong(songlist[songnr]); // or take one song e.g. song_P1
   player.getName(songname, 20);
-  strcpy(RemoteXY.songName,songname);
+  if (remotexy_enabled)
+  {
+    strcpy(RemoteXY.songName, songname);
+  }
 #ifdef DEBUG_SERIAL
   DEBUG_SERIAL.print("Start song nr ");
   DEBUG_SERIAL.println(songnr);
@@ -1008,7 +1018,10 @@ void sequence10()
   sweep(&fingerServo, fingerServoDoorTo, fingerServoTo, 3000);
 #ifdef BUZZER_PIN
   player_stopPlaying(false);
-  strcpy(RemoteXY.songName,"");
+  if (remotexy_enabled)
+  {
+    strcpy(RemoteXY.songName, "");
+  }
 #endif
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 3000);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 1);
@@ -1092,19 +1105,27 @@ void setup() {
   currentledmode = MODE_LED_OFF;
   currentblinktime = LEDSTRIP_DELAY_MAX;
 
-  RemoteXY_Init ();
-  RemoteXY.fingerMove = currentmovemode;
-  memcpy(&RemoteXYprev, &RemoteXY, sizeof(RemoteXY));
+  if (remotexy_enabled)
+  {
+     RemoteXY_Init ();
+     RemoteXY.fingerMove = currentmovemode;
+     memcpy(&RemoteXYprev, &RemoteXY, sizeof(RemoteXY));
 
 #ifdef DEBUG_SERIAL
-    DEBUG_SERIAL.print("End setup RemoteXY.fingerMove: ");
-    DEBUG_SERIAL.println(RemoteXY.fingerMove);
-    DEBUG_SERIAL.print("currentmovemode: ");
-    DEBUG_SERIAL.println(currentmovemode);
-    DEBUG_SERIAL.print("currentseq: ");
-    DEBUG_SERIAL.println(currentseq);
+     DEBUG_SERIAL.print("End setup RemoteXY.fingerMove: ");
+     DEBUG_SERIAL.println(RemoteXY.fingerMove);
+     DEBUG_SERIAL.print("currentmovemode: ");
+     DEBUG_SERIAL.println(currentmovemode);
+     DEBUG_SERIAL.print("currentseq: ");
+     DEBUG_SERIAL.println(currentseq);
 #endif
-
+  }
+  else
+  {
+     WiFi.mode(WIFI_OFF);
+     WiFi.forceSleepBegin();
+     delay(1);
+  }
   last_activity = millis();
 }
 
@@ -1147,8 +1168,11 @@ void loop() {
     lookAroundPowerDown();
   }
 
-  updateRemoteXY();
-
+  if (remotexy_enabled)
+  {
+    updateRemoteXY();
+  }
+   
 #ifdef SWITCH_PIN
   if (digitalRead(SWITCH_PIN) == LOW) {
 #ifdef LED_PIN
