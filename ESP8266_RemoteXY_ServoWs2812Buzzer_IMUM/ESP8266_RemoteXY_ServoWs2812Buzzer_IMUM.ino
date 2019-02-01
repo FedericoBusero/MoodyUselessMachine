@@ -1122,9 +1122,11 @@ void setup() {
   }
   else
   {
-     WiFi.mode(WIFI_OFF);
-     WiFi.forceSleepBegin();
-     delay(1);
+#ifdef ESP8266
+    WiFi.mode(WIFI_OFF);
+    WiFi.forceSleepBegin();
+    delay(1);
+#endif
   }
   last_activity = millis();
 }
