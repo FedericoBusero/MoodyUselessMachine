@@ -216,7 +216,8 @@ int currentledmode;
 #define LEDSTRIP_MAX_BRIGHTNESS 20
 long currentblinktime;
 
-#define TIMEOUT_MS 30000L // servo will go to power off position after x milliseconds of inactivity
+#define TIMEOUT_MS_POWER 30000L // servo will go to power off position after x milliseconds of inactivity
+#define TIMEOUT_MS_SERVO 300L // servo will detach after x milliseconds of inactivity
 long last_activity;
 
 enum
@@ -592,6 +593,10 @@ void updateRemoteXY()
     }
     else
     {
+      if (!fingerServo.attached())
+      {
+        fingerServo.attach(fingerServoPin);
+      }
       fingerServo.writeMicroseconds(fingerServoFrom);
       ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
     }
@@ -602,6 +607,10 @@ void updateRemoteXY()
     if (currentmovemode == MODE_SEQ_MANUAL)
     {
       int servopos = map (RemoteXY.fingerSlider, 0, 100, fingerServoFrom, fingerServoTo);
+      if (!fingerServo.attached())
+      {
+        fingerServo.attach(fingerServoPin);
+      }
       fingerServo.writeMicroseconds(servopos);
       currentseq = 0;
     }
@@ -659,6 +668,10 @@ void sweep(Servo *srv, int from, int to, int delayus)
   unsigned long currentMillis = millis();
   unsigned long endMillis = startMillis + durMillis;
 
+  if (!fingerServo.attached())
+  {
+    fingerServo.attach(fingerServoPin);
+  }
   while (currentMillis < endMillis)
   {
     currentMillis = millis();
@@ -1157,7 +1170,8 @@ void lookAroundPowerDown()
 
   // Move servo to Power off position
   fingerServo.writeMicroseconds(fingerServoPowerOff);
-  delay(100);
+  delay(200);
+  fingerServo.detach();
 
   // this code is normally no longer executed, as the power should be shut down by the servo.
   // in case the power is still on, just continue
@@ -1165,7 +1179,15 @@ void lookAroundPowerDown()
 }
 
 void loop() {
-  if (millis() > last_activity + TIMEOUT_MS)
+  if ((millis() > last_activity + TIMEOUT_MS_SERVO) && (fingerServo.attached()))
+  {
+#ifdef DEBUG_SERIAL
+    DEBUG_SERIAL.println("Servo detach");
+    DEBUG_SERIAL.flush();
+#endif
+    fingerServo.detach();
+  }
+  if (millis() > last_activity + TIMEOUT_MS_POWER)
   {
     lookAroundPowerDown();
   }
