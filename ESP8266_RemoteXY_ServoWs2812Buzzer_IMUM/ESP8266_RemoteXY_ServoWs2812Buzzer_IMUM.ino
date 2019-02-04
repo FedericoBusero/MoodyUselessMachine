@@ -131,7 +131,7 @@ const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
 #else // AVR
 const int fingerServoPin = 6;
 const int ledstripPin    = 5;
-#define BUZZER_PIN 8
+#define BUZZER_PIN 7
 #define SWITCH_PIN 2
 #define LED_PIN 13
 
