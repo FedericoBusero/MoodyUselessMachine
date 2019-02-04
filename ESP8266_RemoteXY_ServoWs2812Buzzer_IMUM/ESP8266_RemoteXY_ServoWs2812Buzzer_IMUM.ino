@@ -27,16 +27,31 @@
 //        RemoteXY include library          //
 //////////////////////////////////////////////
 
+#ifdef ESP8266
 // RemoteXY select connection mode and include library
 #define REMOTEXY_MODE__ESP8266WIFI_LIB_POINT
 #include <ESP8266WiFi.h>
-
-#include <RemoteXY.h>
 
 // RemoteXY connection settings
 #define REMOTEXY_WIFI_SSID "iMUM"
 #define REMOTEXY_WIFI_PASSWORD "12345678"
 #define REMOTEXY_SERVER_PORT 6377
+
+#else
+// AVR Bluetooth softserial
+/* RemoteXY select connection mode and include library */
+
+// SoftwareSerial
+// #define REMOTEXY_MODE__HC05_SOFTSERIAL
+// #include <SoftwareSerial.h>
+
+// Hardware Serial
+#define REMOTEXY_MODE__HARDSERIAL
+
+#endif
+
+#include <RemoteXY.h>
+
 
 // RemoteXY configurate
 #pragma pack(push, 1)
@@ -111,17 +126,28 @@ const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
 #define SWITCH_PIN 14          // GPIO14 (D5 on NodeMCU)
 #define LED_PIN LED_BUILTIN    // GPIO16, D0 on NodeMCU
 
+#define DEBUG_SERIAL Serial
+
 #else // AVR
 const int fingerServoPin = 6;
 const int ledstripPin    = 5;
 #define BUZZER_PIN 8
 #define SWITCH_PIN 2
 #define LED_PIN 13
-g
+
+/* RemoteXY connection settings */
+#define REMOTEXY_SERIAL_SPEED 9600
+#ifdef REMOTEXY_MODE__HARDSERIAL
+// Hard serial
+#define REMOTEXY_SERIAL Serial
+#else
+// Soft Serial
+#define REMOTEXY_SERIAL_RX 8
+#define REMOTEXY_SERIAL_TX 9
+#define DEBUG_SERIAL Serial
 #endif
 
-#define DEBUG_SERIAL Serial
-
+#endif
 #endif
 
 #ifdef BUZZER_PIN
@@ -247,11 +273,12 @@ enum
 // TODO: met struct werken en put & get & sizeof
 
 #define EEPROM_SIZE 4
-#define EEPROM_CONFIG_TEST    0
-#define EEPROM_MOVE_MODE    1
-#define EEPROM_SEQUENCE       2
+#define EEPROM_CONFIG_TEST      0
+#define EEPROM_MOVE_MODE        1
+#define EEPROM_SEQUENCE         2
+#define EEPROM_REMOTEXY_ENABLED 3
 
-#define EEPROM_CONFIG_TEST_VALUE 0x7D
+#define EEPROM_CONFIG_TEST_VALUE 0x7E
 
 #define PLAYLIST_LENGTH 12
 
@@ -334,6 +361,7 @@ void eeprom_reset()
   EEPROM.write(EEPROM_CONFIG_TEST, EEPROM_CONFIG_TEST_VALUE);
   EEPROM.write(EEPROM_MOVE_MODE, currentmovemode);
   EEPROM.write(EEPROM_SEQUENCE, 0);
+  EEPROM.write(EEPROM_REMOTEXY_ENABLED, 1);
 #ifdef ESP8266
   EEPROM.commit();
 #endif
@@ -348,12 +376,15 @@ void eeprom_init()
   {
     currentmovemode  = EEPROM.read(EEPROM_MOVE_MODE);
     currentseq = EEPROM.read(EEPROM_SEQUENCE);
+    remotexy_enabled = EEPROM.read(EEPROM_REMOTEXY_ENABLED);
     // TODO constrain currentmovemode & currentseq
 #ifdef DEBUG_SERIAL
     DEBUG_SERIAL.print("currentmovemode: ");
     DEBUG_SERIAL.println(currentmovemode);
     DEBUG_SERIAL.print("currentseq: ");
     DEBUG_SERIAL.println(currentseq);
+    DEBUG_SERIAL.print("remotexy_enabled: ");
+    DEBUG_SERIAL.println(remotexy_enabled);
 #endif
   }
   else
@@ -381,6 +412,18 @@ void eeprom_write_movemode()
   DEBUG_SERIAL.println(currentmovemode);
 #endif
   EEPROM.write(EEPROM_MOVE_MODE, currentmovemode);
+#ifdef ESP8266
+  EEPROM.commit();
+#endif
+}
+
+void eeprom_write_remote_enabled()
+{
+#ifdef DEBUG_SERIAL
+  DEBUG_SERIAL.print("eeprom_write_remotexy_enabled: ");
+  DEBUG_SERIAL.println(remotexy_enabled);
+#endif
+  EEPROM.write(EEPROM_REMOTEXY_ENABLED, remotexy_enabled);
 #ifdef ESP8266
   EEPROM.commit();
 #endif
@@ -1076,6 +1119,34 @@ void playsequence()
 #endif
 }
 
+void setRemotexyEnable(boolean onoff)
+{
+#ifdef DEBUG_SERIAL
+  if (onoff)
+  {
+    DEBUG_SERIAL.println("setRemotexyEnable(true)");
+  }
+  else
+  {
+    DEBUG_SERIAL.println("setRemotexyEnable(false)");
+  }
+  DEBUG_SERIAL.flush();
+#endif
+  remotexy_enabled = onoff;
+  if (remotexy_enabled)
+  {
+    tone(BUZZER_PIN,440,200);
+    delay(200);
+    tone(BUZZER_PIN,440,200);
+  }
+  else
+  {
+    currentmovemode = MODE_SEQ_ITERATE;
+    eeprom_write_movemode();
+    tone(BUZZER_PIN,440,200);
+  }
+  eeprom_write_remote_enabled();
+}
 
 
 void setup() {
@@ -1103,6 +1174,19 @@ void setup() {
   player.transpose(-2);
 #endif
 
+#ifdef SWITCH_PIN
+  if (digitalRead(SWITCH_PIN) == HIGH) {  // If switch pin is not put on, it means user wants to toggle remotexy on/off
+    if (remotexy_enabled)
+    {
+      setRemotexyEnable(false);
+    }
+    else
+    {
+      setRemotexyEnable(true);
+    }
+  }
+#endif
+   
   pinModeGpio(fingerServoPin);
   fingerServo.writeMicroseconds(fingerServoFrom);
   fingerServo.attach(fingerServoPin);
@@ -1123,15 +1207,6 @@ void setup() {
      RemoteXY_Init ();
      RemoteXY.fingerMove = currentmovemode;
      memcpy(&RemoteXYprev, &RemoteXY, sizeof(RemoteXY));
-
-#ifdef DEBUG_SERIAL
-     DEBUG_SERIAL.print("End setup RemoteXY.fingerMove: ");
-     DEBUG_SERIAL.println(RemoteXY.fingerMove);
-     DEBUG_SERIAL.print("currentmovemode: ");
-     DEBUG_SERIAL.println(currentmovemode);
-     DEBUG_SERIAL.print("currentseq: ");
-     DEBUG_SERIAL.println(currentseq);
-#endif
   }
   else
   {
@@ -1141,6 +1216,17 @@ void setup() {
     delay(1);
 #endif
   }
+   
+#ifdef DEBUG_SERIAL
+  DEBUG_SERIAL.print("currentmovemode: ");
+  DEBUG_SERIAL.println(currentmovemode);
+  DEBUG_SERIAL.print("currentseq: ");
+  DEBUG_SERIAL.println(currentseq);
+  DEBUG_SERIAL.print("remotexy_enabled: ");
+  DEBUG_SERIAL.println(remotexy_enabled);
+  DEBUG_SERIAL.println("End setup");
+#endif
+   
   last_activity = millis();
 }
 
@@ -1175,7 +1261,12 @@ void lookAroundPowerDown()
 
   // this code is normally no longer executed, as the power should be shut down by the servo.
   // in case the power is still on, just continue
-  last_activity = millis();
+#ifdef DEBUG_SERIAL
+  DEBUG_SERIAL.println("lookAroundPowerDown ended");
+  DEBUG_SERIAL.flush();
+#endif
+   
+   last_activity = millis();
 }
 
 void loop() {
