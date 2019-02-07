@@ -588,6 +588,7 @@ void onChangeConnection()
 
     // Move servo to Power off position
     // fingerServo.writeMicroseconds(fingerServoPowerOff);
+    lookAroundPowerDown();
   }
 }
 
@@ -1152,6 +1153,7 @@ void setRemotexyEnable(boolean onoff)
 void setup() {
 #ifdef DEBUG_SERIAL
   DEBUG_SERIAL.begin(115200);
+  DEBUG_SERIAL.println("");
   DEBUG_SERIAL.println("Setup iMum");
   DEBUG_SERIAL.flush();
 #endif
@@ -1207,6 +1209,7 @@ void setup() {
      RemoteXY_Init ();
      RemoteXY.fingerMove = currentmovemode;
      memcpy(&RemoteXYprev, &RemoteXY, sizeof(RemoteXY));
+     RemoteXYprev.fingerMove = -1; // force updateFingerMode
   }
   else
   {
