@@ -426,11 +426,17 @@ class Player {
     
     bool nextStep()
     {
-      
       //Serial.println("nextStep() started");
       //remember when it started
-      periodStart = millis();
-
+      if (periodStart == -1)
+      {
+        periodStart = millis();
+      }
+      else
+      {
+        periodStart += periodLength;
+      }
+      
       byte note;
       byte scale;
       
