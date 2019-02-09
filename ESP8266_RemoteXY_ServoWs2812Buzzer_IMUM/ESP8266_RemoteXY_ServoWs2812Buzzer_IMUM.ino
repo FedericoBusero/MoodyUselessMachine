@@ -1054,6 +1054,7 @@ void sequence10()
 
   currentslowdown = 200;
 #ifdef BUZZER_PIN
+  randomSeed(millis()%1024);
   int songnr = random(NUMSONGS);
   player.setSong(songlist[songnr]); // or take one song e.g. song_P1
   player.getName(songname, 20);
