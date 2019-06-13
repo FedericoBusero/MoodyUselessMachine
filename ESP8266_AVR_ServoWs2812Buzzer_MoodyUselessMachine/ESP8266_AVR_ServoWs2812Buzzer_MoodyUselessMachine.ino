@@ -26,6 +26,8 @@
 // #define HWMODE_ESP01
 
 #ifdef __AVR_ATtiny85__
+// PB0 & PB1 are PWM channels. PB0 is the builtin LED on the USB programmer
+// PB0 & PB2 are used during upload (don't use it for switch/servo)
 #define LED_PWM1_PIN PB0
 #define LED_PWM2_PIN PB1
 #define SERVO_PIN    PB3
