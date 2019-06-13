@@ -229,20 +229,14 @@ enum
 
 #define EEPROM_CONFIG_TEST_VALUE 0x4C
 
-#define PLAYLIST_LENGTH 12
+#define NUM_SEQUENCES 10
 
 static int currentseq = -1;
 
 int getnextseq()
 {
-  if (currentseq < PLAYLIST_LENGTH - 1)
-  {
-    return (currentseq + 1);
-  }
-  else
-  {
-    return 0;
-  }
+  randomSeed(millis() % 1024);
+  return (int)random(NUM_SEQUENCES );
 }
 
 void pinModeGpio(int pinnr)
@@ -866,30 +860,28 @@ void sequence10()
 
 void playsequence()
 {
+  void (*sequences[NUM_SEQUENCES])() = {
+    sequence1,
+    sequence2,
+    sequence3,
+    sequence4,
+    sequence5,
+    sequence6,
+    sequence7,
+    sequence8,
+    sequence9,
+    sequence10,
+  };
+
 #ifdef DEBUG_SERIAL
   DEBUG_SERIAL.print("Starting sequence ");
   DEBUG_SERIAL.println(currentseq);
   DEBUG_SERIAL.flush();
 #endif
 
-  void (*playlist[PLAYLIST_LENGTH])() = {
-    sequence3,
-    sequence1,
-    sequence9,
-    sequence5,
-    sequence7,
-    sequence2,
-    sequence10,
-    sequence3,
-    sequence8,
-    sequence6,
-    sequence3,
-    sequence4
-  };
-
-  if ((currentseq >= 0) && (currentseq < PLAYLIST_LENGTH))
+  if ((currentseq >= 0) && (currentseq < NUM_SEQUENCES ))
   {
-    playlist[currentseq]();
+    sequences[currentseq]();
   }
 
 #ifdef DEBUG_SERIAL
