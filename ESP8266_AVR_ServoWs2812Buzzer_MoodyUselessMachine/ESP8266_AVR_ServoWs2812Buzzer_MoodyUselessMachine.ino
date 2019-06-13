@@ -1,10 +1,4 @@
-#include <Servo.h>
 #include <EEPROM.h>
-
-#ifdef ESP8266
-#define FASTLED_ESP8266_RAW_PIN_ORDER
-#endif
-#include <FastLED.h>
 
 /*
   Switch on ESP8266 e.g. ESP-01
@@ -21,7 +15,7 @@
       - GPIO5 (D1), GPIO4 (D2) are possible if I2C is not being used on these pins
       - GPIO14 (D5), GPIO12 (D6), GPIO13 (D7) are the preferred servo pins
       - GPIO15 (D8) ?? to be tested as it is being used during boot (the servo acts as pulldown resistor, should be ok but to be confirmed)
-      - GPIO0 (D3) and GPIO2 (D4) are also possible. But as they are used during the boot process, an external pull-up resistor is necessary 
+      - GPIO0 (D3) and GPIO2 (D4) are also possible. But as they are used during the boot process, an external pull-up resistor is necessary
         (e.g. 220 kOhm connected to VCC)
   - GPIO3 (RX) and GPIO1 (TX) maybe also can be used (e.g. on ESP-01) - to be tested, but make sure the Serial port is not used by undefining DEBUG_SERIAL. RX is preferred over TX as its use as Serial port is also input
   - Maybe also GPIO10 works (to be tested)
@@ -31,40 +25,56 @@
 
 // #define HWMODE_ESP01
 
+#ifdef __AVR_ATtiny85__
+#define LED_PWM1_PIN PB0
+#define LED_PWM2_PIN PB1
+#define SERVO_PIN    PB3
+#define SWITCH_PIN   PB4
+
+#else // __AVR_ATtiny85__
+
 #ifdef HWMODE_ESP01 // ESP-01
 #include <ESP8266WiFi.h>
-const int fingerServoPin = 0;  // GPIO0, needs external pull-up resistor
-const int ledstripPin    = 1;  // GPIO1, TX port
-#define BUZZER_PIN 2        // GPIO2
-#define SWITCH_PIN 3         // GPIO3, RX port
+#define SERVO_PIN      0 // GPIO0, needs external pull-up resistor
+#define LED_WS2812_PIN 1 // GPIO1, TX port
+#define BUZZER_PIN     2 // GPIO2
+#define SWITCH_PIN     3 // GPIO3, RX port
 
-#else
+#else // ifdef HWMODE_ESP01
+
 #ifdef ESP8266 // NodeMCU
+
 #include <ESP8266WiFi.h>
-const int fingerServoPin = 12; // GPIO12 (D6 on NodeMCU)
-const int ledstripPin    = 0;  // GPIO0  (D3 on NodeMCU)
+#define SERVO_PIN    12        // GPIO12 (D6 on NodeMCU)
+#define LED_WS2812_PIN 0       // GPIO0  (D3 on NodeMCU)
 #define BUZZER_PIN 5           // GPIO5  (D1 on NodeMCU)
 #define SWITCH_PIN 14          // GPIO14 (D5 on NodeMCU)
 #define LED_PIN LED_BUILTIN    // GPIO16, D0 on NodeMCU
 
-#else // AVR
-const int fingerServoPin = 6;
-const int ledstripPin    = 5;
+#else // ifdef ESP8266 
+
+// AVR
+#define SERVO_PIN 6
+#define LED_WS2812_PIN 5
 #define BUZZER_PIN 8
 #define SWITCH_PIN 2
 #define LED_PIN 13
 
-#endif
+#endif // ifdef ESP8266 
 
 #define DEBUG_SERIAL Serial
 
-#endif
+#endif // ifdef HWMODE_ESP01
+#endif // __AVR_ATtiny85__
+
+// -------------------------------
+// Buzzer definitions
 
 #ifdef BUZZER_PIN
 #include "rtttl.h"
 
 /*
-Some sources of RTTTL tunes:
+  Some sources of RTTTL tunes:
   http://www.picaxe.com/RTTTL-Ringtones-for-Tune-Command/
   https://github.com/KohaSuomi/emb-rtttl/tree/master/rtttl
   http://mines.lumpylumpy.com/Electronics/Computers/Software/Cpp/MFC/RingTones.RTTTL
@@ -121,7 +131,17 @@ const char * const songlist [NUMSONGS] =
 ProgmemPlayer player(BUZZER_PIN);
 #endif
 
-Servo fingerServo;
+// -------------------------------------
+// Servo definitions
+#ifdef __AVR_ATtiny85__
+#include "Servo8Bit.h"
+#define SERVO_TYPE Servo8Bit
+#else
+#include <Servo.h>
+#define SERVO_TYPE Servo
+#endif
+
+SERVO_TYPE fingerServo;
 
 int fingerServoPowerOff = 800; // power off internal switch
 int fingerServoFrom     = 1000; // starting position, close to internal switch
@@ -136,19 +156,56 @@ int fingerServoTo       = 2130; // move the switch
 
 long currentslowdown = 200;
 
-// WS2812 ledstrip
+// ----------------------------------------
+// WS2812 ledstrip definitions
+
+#ifdef LED_WS2812_PIN
+
+#ifdef ESP8266
+#define FASTLED_ESP8266_RAW_PIN_ORDER
+#endif
+#include <FastLED.h>
 
 // How many leds in your strip?
 #define NUMLEDPIXELS      2
 
 // Define the array of leds
 CRGB leds[NUMLEDPIXELS];
-CRGB currentcolor;
+#define LEDSTRIP_MAX_BRIGHTNESS 20
+
+#define COLOR_TYPE CRGB
+
+#define COLOR_BLACK  CRGB::Black
+#define COLOR_WHITE  CRGB::White
+#define COLOR_BLUE   CRGB::Blue
+#define COLOR_PURPLE CRGB::Purple
+#define COLOR_YELLOW CRGB::Yellow
+#define COLOR_RED    CRGB::Red
+#define COLOR_GREEN  CRGB::Green
+#define COLOR_DARKSEAGREEN  CRGB::DarkSeaGreen
+
+
+#else // ifdef LED_WS2812_PIN
+#define NUMLEDPIXELS      2
+#define COLOR_TYPE uint8_t
+
+#define COLOR_BLACK  0
+#define COLOR_WHITE  255
+#define COLOR_BLUE   150
+#define COLOR_PURPLE 150
+#define COLOR_YELLOW 150
+#define COLOR_RED    150
+#define COLOR_GREEN  150
+#define COLOR_DARKSEAGREEN 150
+
+#endif // ifdef LED_WS2812_PIN
+
+COLOR_TYPE currentcolor;
+
 int currentmode;
 
 #define LEDSTRIP_DELAY_MAX 1000
 #define LEDSTRIP_DELAY_MIN 200
-#define LEDSTRIP_MAX_BRIGHTNESS 20
 long currentblinktime;
 
 #define TIMEOUT_MS 30000L // servo will go to power off position after x milliseconds of inactivity
@@ -156,7 +213,7 @@ long last_activity;
 
 enum
 {
-  MODE_LED_KITT=0,
+  MODE_LED_KITT = 0,
   MODE_LED_ON,
   MODE_LED_BLINK,
   MODE_LED_OFF,
@@ -178,7 +235,7 @@ static int currentseq = -1;
 
 int getnextseq()
 {
-  if (currentseq < PLAYLIST_LENGTH-1)
+  if (currentseq < PLAYLIST_LENGTH - 1)
   {
     return (currentseq + 1);
   }
@@ -254,8 +311,16 @@ void loop_led_on(bool updateSelect, bool updateRGB)
 {
   if (updateSelect || updateRGB)
   {
+#ifdef LED_WS2812_PIN
     fill_solid (leds, NUMLEDPIXELS, currentcolor);
     FastLED.show();
+#endif
+#ifdef LED_PWM1_PIN
+    analogWrite(LED_PWM1_PIN, currentcolor);
+#endif
+#ifdef LED_PWM2_PIN
+    analogWrite(LED_PWM2_PIN, currentcolor);
+#endif
   }
 }
 
@@ -272,13 +337,31 @@ void loop_led_blink(bool updateSelect)
     toggle = !toggle;
     if (toggle)
     {
+#ifdef LED_WS2812_PIN
       fill_solid (leds, NUMLEDPIXELS, currentcolor);
+#endif
+#ifdef LED_PWM1_PIN
+      analogWrite(LED_PWM1_PIN, currentcolor);
+#endif
+#ifdef LED_PWM2_PIN
+      analogWrite(LED_PWM2_PIN, currentcolor);
+#endif
     }
     else
     {
-      fill_solid (leds, NUMLEDPIXELS, CRGB::Black);
+#ifdef LED_WS2812_PIN
+      fill_solid (leds, NUMLEDPIXELS, COLOR_BLACK);
+#endif
+#ifdef LED_PWM1_PIN
+      analogWrite(LED_PWM1_PIN, 0);
+#endif
+#ifdef LED_PWM2_PIN
+      analogWrite(LED_PWM2_PIN, 0);
+#endif
     }
+#ifdef LED_WS2812_PIN
     FastLED.show();
+#endif
   }
 }
 
@@ -297,19 +380,28 @@ void loop_led_KITT(bool updateSelect)
   float p = ((float)passedtime * (float)(2 * (NUMLEDPIXELS - 1)) / (float)currentblinktime) - (NUMLEDPIXELS - 1);
   p = (NUMLEDPIXELS - 1) - fabs(p);
 
+  int b1 = (int)(255.0 * (p - floor(p)));
+  int b2 = (int)(255.0 * (1.0 - (p - floor(p)) ));
+
+#ifdef LED_WS2812_PIN
   FastLED.clear();
-  
-  int b = (int)(255.0 * (p - floor(p)));
+
   int i = (int)floor(p);
   leds[i] = currentcolor;
-  leds[i].fadeLightBy( b );
-  
-  b = (int)(255.0 * (1.0 - (p - floor(p)) ));
+  leds[i].fadeLightBy( b1 );
+
   i = (int)ceil(p);
   leds[i] = currentcolor;
-  leds[i].fadeLightBy( b );
-  
+  leds[i].fadeLightBy( b2 );
+
   FastLED.show();
+#endif
+#ifdef LED_PWM1_PIN
+  analogWrite(LED_PWM1_PIN, b1);
+#endif
+#ifdef LED_PWM2_PIN
+  analogWrite(LED_PWM2_PIN, b2);
+#endif
 }
 
 void loop_led_rainbow(bool updateSelect)
@@ -323,9 +415,23 @@ void loop_led_rainbow(bool updateSelect)
   }
 
   long passedtime = (currenttime - starttime) % currentblinktime;
+#ifdef  LED_WS2812_PIN
   int wheelpos = map(passedtime, 0, currentblinktime, 0, 255);
   fill_solid (leds, NUMLEDPIXELS, CHSV( wheelpos, 255, 255));
   FastLED.show();
+#endif
+#if defined(LED_PWM1_PIN) || defined (LED_PWM2_PIN)
+  float p = ((float)passedtime * (float)(2) / (float)currentblinktime) - 1;
+  p = 1 - fabs(p);
+
+  int b = (int)(255.0 * (p ));
+#ifdef LED_PWM1_PIN
+  analogWrite(LED_PWM1_PIN, b);
+#endif
+#ifdef LED_PWM2_PIN
+  analogWrite(LED_PWM2_PIN, b);
+#endif
+#endif
 }
 
 void loop_led_off(bool updateSelect)
@@ -333,8 +439,16 @@ void loop_led_off(bool updateSelect)
 
   if (updateSelect)
   {
+#ifdef LED_WS2812_PIN
     FastLED.clear();
     FastLED.show();
+#endif
+#ifdef LED_PWM1_PIN
+    analogWrite(LED_PWM1_PIN, 0);
+#endif
+#ifdef LED_PWM2_PIN
+    analogWrite(LED_PWM2_PIN, 0);
+#endif
   }
 }
 
@@ -364,14 +478,14 @@ void updateledstrip(bool updateSelect, bool updateRGB)
   }
 }
 
-void ledstrip_setmode(int newmode, CRGB newcolor)
+void ledstrip_setmode(int newmode, COLOR_TYPE newcolor)
 {
   currentcolor = newcolor;
   currentmode = newmode;
   updateledstrip(true, true);
 }
 
-void ledstrip_setmode_delay(int newmode, CRGB newcolor, int newblinktime)
+void ledstrip_setmode_delay(int newmode, COLOR_TYPE newcolor, int newblinktime)
 {
   currentcolor = newcolor;
   currentmode = newmode;
@@ -390,7 +504,7 @@ inline float ServoEaser_easeInOutCubic(float t, float b, float c, float d)
   return c / 2 * ((t -= 2) * t * t + 2) + b;
 }
 
-void sweep(Servo *srv, int from, int to, int delayus)
+void sweep(SERVO_TYPE *srv, int from, int to, int delayus)
 {
   unsigned long startMillis = millis();
   float currPos;
@@ -418,7 +532,9 @@ void sweep_delay(unsigned long durMillis)
   unsigned long currentMillis = millis();
   unsigned long endMillis = currentMillis + durMillis;
 
+#ifdef LED_WS2812_PIN
   FastLED.delay(2); // we have some free time, this will update the LED's
+#endif
   while (currentMillis < endMillis)
   {
     currentMillis = millis();
@@ -456,7 +572,7 @@ void player_stopPlaying(bool waitUntilEndTune)
 void sequence1()
 {
   currentslowdown = 200;
-  ledstrip_setmode(MODE_LED_ON, CRGB::Blue );
+  ledstrip_setmode(MODE_LED_ON, COLOR_BLUE );
   sweep_delay(700);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 3000);
   sweep_delay(1000);
@@ -467,14 +583,14 @@ void sequence1()
   sweep(&fingerServo, fingerServoMid, fingerServoTo, 500);
   sweep_delay(100);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 500);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void sequence2()
 {
   currentslowdown = 200;
   sweep_delay(800);
-  ledstrip_setmode_delay(MODE_LED_BLINK, CRGB::White, 200 );
+  ledstrip_setmode_delay(MODE_LED_BLINK, COLOR_WHITE, 200 );
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid2, 3000);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(120);
@@ -496,25 +612,25 @@ void sequence2()
   sweep(&fingerServo, fingerServoMid, fingerServoTo, 500);
   sweep_delay(100);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 500);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void sequence3()
 {
   currentslowdown = 200;
-  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::Green, 600 );
+  ledstrip_setmode_delay(MODE_LED_KITT, COLOR_GREEN, 600 );
   sweep_delay(50);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void sequence4()
 {
   currentslowdown = 200;
-  ledstrip_setmode(MODE_LED_ON, CRGB::Purple );
+  ledstrip_setmode(MODE_LED_ON, COLOR_PURPLE );
   sweep_delay(500);
   sweep(&fingerServo, fingerServoFrom, fingerServoMid2, 1);
   sweep_delay(450);
@@ -522,19 +638,19 @@ void sequence4()
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 30000);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void sequence5()
 {
   currentslowdown = 200;
 
-  ledstrip_setmode(MODE_LED_ON, CRGB::Yellow );
+  ledstrip_setmode(MODE_LED_ON, COLOR_YELLOW );
   sweep_delay(1000);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
   sweep_delay(450);
 
-  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::Yellow, 200 );
+  ledstrip_setmode_delay(MODE_LED_KITT, COLOR_YELLOW, 200 );
 
   sweep(&fingerServo, fingerServoTo, fingerServoMid2, 1);
   sweep_delay(110);
@@ -549,32 +665,32 @@ void sequence5()
   sweep(&fingerServo, fingerServoMid2, fingerServoTo, 1);
   sweep_delay(110);
 
-  ledstrip_setmode(MODE_LED_ON, CRGB::Yellow );
+  ledstrip_setmode(MODE_LED_ON, COLOR_YELLOW );
 
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void sequence6()
 {
   currentslowdown = 400;
 
-  ledstrip_setmode(MODE_LED_ON, CRGB::Purple );
+  ledstrip_setmode(MODE_LED_ON, COLOR_PURPLE );
   sweep_delay(1500);
   sweep(&fingerServo, fingerServoFrom, fingerServoTo, 1);
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 1);
   sweep_delay(450);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 1000);
 
   sweep_delay(2000);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1000);
 
-  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::White, 1000 );
+  ledstrip_setmode_delay(MODE_LED_KITT, COLOR_WHITE, 1000 );
   sweep_delay(2000);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 
   sweep(&fingerServo, fingerServoDoorTo, fingerServoFrom, 1);
   sweep_delay(200);
@@ -605,14 +721,14 @@ void sequence7()
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
 
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void sequence8()
 {
   currentslowdown = 300;
 
-  ledstrip_setmode(MODE_LED_ON, CRGB::Blue );
+  ledstrip_setmode(MODE_LED_ON, COLOR_BLUE );
   sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 1);
   sweep_delay(200);
@@ -623,7 +739,7 @@ void sequence8()
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1);
   sweep_delay(100);
 
-  ledstrip_setmode_delay(MODE_LED_BLINK, CRGB::Blue, 100 );
+  ledstrip_setmode_delay(MODE_LED_BLINK, COLOR_BLUE, 100 );
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
@@ -650,7 +766,7 @@ void sequence8()
   sweep_delay(50);
 
 
-  ledstrip_setmode(MODE_LED_ON, CRGB::Blue );
+  ledstrip_setmode(MODE_LED_ON, COLOR_BLUE );
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorFrom, 1);
   sweep_delay(200);
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1);
@@ -658,7 +774,7 @@ void sequence8()
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void sequence9()
@@ -667,13 +783,13 @@ void sequence9()
 
   sweep_delay(1000);
 
-  ledstrip_setmode(MODE_LED_ON, CRGB::Red );
+  ledstrip_setmode(MODE_LED_ON, COLOR_RED );
 
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorMid, 2000);
   sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorMid, fingerServoDoorMid2, 1000);
 
-  ledstrip_setmode_delay(MODE_LED_BLINK, CRGB::Red, 100 );
+  ledstrip_setmode_delay(MODE_LED_BLINK, COLOR_RED, 100 );
 
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid3, 1);
   sweep_delay(50);
@@ -707,7 +823,7 @@ void sequence9()
   sweep_delay(50);
   sweep(&fingerServo, fingerServoDoorMid3, fingerServoDoorMid2, 1);
 
-  ledstrip_setmode(MODE_LED_ON, CRGB::Red );
+  ledstrip_setmode(MODE_LED_ON, COLOR_RED );
 
   sweep_delay(500);
   sweep(&fingerServo, fingerServoDoorMid2, fingerServoDoorMid, 5000);
@@ -716,18 +832,18 @@ void sequence9()
   sweep_delay(450);
   sweep(&fingerServo, fingerServoTo, fingerServoFrom, 1);
   sweep_delay(400);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void sequence10()
 {
-  char songname[20+1];
-  
+  char songname[20 + 1];
+
   currentslowdown = 200;
 #ifdef BUZZER_PIN
   int songnr = random(NUMSONGS);
   player.setSong(songlist[songnr]); // or take one song e.g. song_P1
-  player.getName(songname,20);
+  player.getName(songname, 20);
 #ifdef DEBUG_SERIAL
   DEBUG_SERIAL.print("Start song nr ");
   DEBUG_SERIAL.println(songnr);
@@ -745,7 +861,7 @@ void sequence10()
   sweep(&fingerServo, fingerServoTo, fingerServoDoorTo, 3000);
   sweep(&fingerServo, fingerServoDoorTo, fingerServoDoorFrom, 1);
   sweep_delay(300);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 }
 
 void playsequence()
@@ -757,7 +873,7 @@ void playsequence()
 #endif
 
   void (*playlist[PLAYLIST_LENGTH])() = {
-    sequence3, 
+    sequence3,
     sequence1,
     sequence9,
     sequence5,
@@ -771,7 +887,7 @@ void playsequence()
     sequence4
   };
 
-  if ((currentseq >= 0) && (currentseq <PLAYLIST_LENGTH))
+  if ((currentseq >= 0) && (currentseq < PLAYLIST_LENGTH))
   {
     playlist[currentseq]();
   }
@@ -788,7 +904,7 @@ void setup() {
   DEBUG_SERIAL.println("Setup Moody useless machine");
   DEBUG_SERIAL.flush();
 #endif
-  
+
 #ifdef ESP8266
   WiFi.mode(WIFI_OFF);
   WiFi.forceSleepBegin();
@@ -812,22 +928,34 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   player.transpose(-2);
 #endif
-  
-  pinModeGpio(fingerServoPin);
+
+  pinModeGpio(SERVO_PIN);
   fingerServo.writeMicroseconds(fingerServoFrom);
-  fingerServo.attach(fingerServoPin);
-  
-  pinModeGpio(ledstripPin);
-  FastLED.addLeds<NEOPIXEL, ledstripPin>(leds, NUMLEDPIXELS);
+  fingerServo.attach(SERVO_PIN);
+
+#ifdef LED_PWM1_PIN
+  pinModeGpio(LED_PWM1_PIN);
+  pinMode(LED_PWM1_PIN, OUTPUT);
+#endif
+
+#ifdef LED_PWM2_PIN
+  pinModeGpio(LED_PWM2_PIN);
+  pinMode(LED_PWM2_PIN, OUTPUT);
+#endif
+
+#ifdef LED_WS2812_PIN
+  pinModeGpio(LED_WS2812_PIN);
+  FastLED.addLeds<NEOPIXEL, LED_WS2812_PIN>(leds, NUMLEDPIXELS);
   FastLED.setBrightness(LEDSTRIP_MAX_BRIGHTNESS);
   FastLED.clear();
   FastLED.show();
   FastLED.delay(2);
+#endif
 
-  currentcolor = CRGB::Black;
+  currentcolor = COLOR_BLACK;
   currentmode = MODE_LED_OFF;
   currentblinktime = LEDSTRIP_DELAY_MAX;
-  
+
   last_activity = millis();
 }
 
@@ -837,9 +965,9 @@ void lookAroundPowerDown()
   // "Look around" to see if it's safe to power power down the box
   sweep(&fingerServo, fingerServoDoorFrom, fingerServoDoorTo, 1000);
 
-  ledstrip_setmode_delay(MODE_LED_KITT, CRGB::CRGB::DarkSeaGreen, 1000 );
+  ledstrip_setmode_delay(MODE_LED_KITT, COLOR_DARKSEAGREEN, 1000 );
   sweep_delay(2000);
-  ledstrip_setmode(MODE_LED_OFF, CRGB::Black );
+  ledstrip_setmode(MODE_LED_OFF, COLOR_BLACK );
 
   sweep(&fingerServo, fingerServoDoorTo, fingerServoFrom, 1);
   sweep_delay(200);
@@ -888,4 +1016,3 @@ void loop() {
 
   last_activity = millis();
 }
-
